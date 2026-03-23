@@ -1,7 +1,19 @@
 # MFOS (Mirror Field Operating System)
+
 Commit-boundary enforcement layer for AI-assisted decision systems.
 
-MFOS introduces a control point between suggestion and irreversible action. It ensures that no decision becomes real without being explicitly validated, owned, and recorded.
+MFOS introduces a control point between suggestion and irreversible action.  
+No decision becomes real without being explicitly validated, owned, and recorded.
+
+---
+
+## What this is
+
+A working outbound enforcement service that sits between AI output and execution.
+
+Flow:
+
+Preflight → Commit → Audit
 
 ---
 
@@ -16,7 +28,7 @@ That gap creates risk:
 - Lack of ownership  
 - Weak auditability  
 
-Most systems rely on guidelines or downstream review. By the time issues are detected, the action has already committed.
+Most systems detect issues after execution. MFOS enforces before commit.
 
 ---
 
@@ -24,55 +36,25 @@ Most systems rely on guidelines or downstream review. By the time issues are det
 
 MFOS enforces decisions at the commit boundary.
 
-- Preflight: capture and hash intent before execution  
-- Commit: validate against a pinned policy state  
-- Enforcement: block or require explicit ownership on exception  
-- Audit: append-only record of all decisions  
+- Preflight — capture and hash intent  
+- Commit — validate against pinned policy  
+- Enforcement — block or require explicit ownership  
+- Audit — append-only decision record  
 
 No implicit actions. No silent bypass.
 
 ---
 
-## Architecture (High-Level)
+## Architecture
 
-- Preflight Layer — captures intent and context  
-- Commit Engine — enforces the decision boundary  
-- Policy Layer — versioned, context-aware rules  
-- Audit Ledger — immutable decision history  
-
-Designed as middleware that integrates into existing systems.
+- Preflight Layer — intent capture + hashing  
+- Commit Engine — enforcement logic  
+- Policy Layer — versioned rules  
+- Audit Ledger — append-only history  
 
 ---
 
-## Why it exists
+## Running the service
 
-Built from experience in fraud and risk environments, where small gaps in decision flow turn into real losses.
-
-MFOS focuses on the point where decisions become irreversible.
-
----
-
-## Goal
-
-Ensure no action becomes real without being:
-
-- Validated  
-- Owned  
-- Recorded  
-
----
-
-## Status
-
-Early-stage concept with working structure and enforcement model.
-
-Goal
-
-Ensure no action becomes real without being:
-
-Validated
-Owned
-Recorded
-Status
-
-Early-stage concept with working structure and enforcement model.
+```bash
+docker-compose up --build
