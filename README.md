@@ -1,106 +1,78 @@
-# MFOS Outbound Enforcement Service
+# MFOS (Mirror Field Operating System)
+Commit-boundary enforcement layer for AI-assisted decision systems.
 
-A runnable starter for the MFOS outbound enforcement service.
+MFOS introduces a control point between suggestion and irreversible action. It ensures that no decision becomes real without being explicitly validated, owned, and recorded.
 
-What this package gives you:
-- `/api/v2/messages/preflight`
-- `/api/v2/messages/commit`
-- Postgres-backed draft, decision, audit, and outbox persistence
-- DB-enforced idempotency, approval uniqueness, append-only audit behavior, and outbox state transitions
-- auth scaffold with dev bypass for local testing
-- SCIM starter routes
-- outbox worker with a log transport for local validation
+---
 
-## Local bootstrap
+## Problem
 
-1. Copy env file:
+AI systems accelerate decisions but do not control the moment those decisions become real.
 
-```bash
-cp .env.example .env
-```
+That gap creates risk:
 
-2. Start Postgres:
+- Silent overrides  
+- Decision drift  
+- Lack of ownership  
+- Weak auditability  
 
-```bash
-docker compose up -d
-```
+Most systems rely on guidelines or downstream review. By the time issues are detected, the action has already committed.
 
-3. Install dependencies:
+---
 
-```bash
-npm install
-```
+## Approach
 
-4. Run migrations:
+MFOS enforces decisions at the commit boundary.
 
-```bash
-npm run migrate
-```
+- Preflight: capture and hash intent before execution  
+- Commit: validate against a pinned policy state  
+- Enforcement: block or require explicit ownership on exception  
+- Audit: append-only record of all decisions  
 
-5. Seed local org, user, role, and active policy:
+No implicit actions. No silent bypass.
 
-```bash
-npm run seed
-```
+---
 
-6. Start the API:
+## Architecture (High-Level)
 
-```bash
-npm run dev
-```
+- Preflight Layer — captures intent and context  
+- Commit Engine — enforces the decision boundary  
+- Policy Layer — versioned, context-aware rules  
+- Audit Ledger — immutable decision history  
 
-7. Start the outbox worker in another terminal:
+Designed as middleware that integrates into existing systems.
 
-```bash
-npm run worker:outbox
-```
+---
 
-## Local test flow
+## Why it exists
 
-In `AUTH_MODE=dev`, requests do not require a real bearer token.
-Use these seeded IDs by default:
-- org: `00000000-0000-0000-0000-000000000001`
-- user: `11111111-1111-1111-1111-111111111111`
+Built from experience in fraud and risk environments, where small gaps in decision flow turn into real losses.
 
-### Preflight
+MFOS focuses on the point where decisions become irreversible.
 
-```bash
-curl -s http://localhost:3000/api/v2/messages/preflight \
-  -H 'content-type: application/json' \
-  -d '{
-    "orgId": "00000000-0000-0000-0000-000000000001",
-    "actorUserId": "11111111-1111-1111-1111-111111111111",
-    "payload": {
-      "channel": "email",
-      "to": ["test@example.com"],
-      "subject": "MFOS boundary test",
-      "body": "This message should only move with a valid recorded decision."
-    }
-  }'
-```
+---
 
-### Commit approval
+## Goal
 
-Take the `draftId` and `contentHash` from the preflight response.
+Ensure no action becomes real without being:
 
-```bash
-curl -s http://localhost:3000/api/v2/messages/commit \
-  -H 'content-type: application/json' \
-  -d '{
-    "orgId": "00000000-0000-0000-0000-000000000001",
-    "actorUserId": "11111111-1111-1111-1111-111111111111",
-    "draftId": "REPLACE_DRAFT_ID",
-    "expectedContentHash": "REPLACE_CONTENT_HASH",
-    "idempotencyKey": "commit-001",
-    "decisionType": "approve",
-    "rationale": "Boundary approval for local test"
-  }'
-```
+- Validated  
+- Owned  
+- Recorded  
 
-The worker will pick up the outbox row and mark it `sent` using the local log transport.
+---
 
-## Notes
+## Status
 
-- `AUTH_MODE=dev` is only a local testing bypass.
-- policy validation is intentionally deterministic and starter-grade. It blocks approval if required fields are missing from the message payload.
-- the outbox transport is a local stub so you can validate the decision-to-send handoff before wiring SES, SMTP, or another provider.
+Early-stage concept with working structure and enforcement model.
+
+Goal
+
+Ensure no action becomes real without being:
+
+Validated
+Owned
+Recorded
+Status
+
+Early-stage concept with working structure and enforcement model.
