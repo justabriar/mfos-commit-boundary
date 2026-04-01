@@ -1,0 +1,2017 @@
+{
+  "suiteVersion": "1.4.0",
+  "suiteName": "mfos_ground_truth_v1_4",
+  "artifactType": "mfosGroundTruthSuite",
+  "consolidated": true,
+  "description": "Refined MFOS ground-truth suite for commit-boundary evaluation. This version preserves mechanical gate logic while adding security enforcement hooks, runtime and scalability expectations, interoperability contracts, and idempotency/replay controls needed for enterprise middleware deployment.",
+  "verificationTargets": [
+    "classification.pressureProfile",
+    "classification.actionIntent",
+    "classification.consequenceProfile",
+    "classification.authorityProfile",
+    "classification.tempoProfile",
+    "classification.clarityProfile",
+    "ownership",
+    "thresholdEvaluation.mechanicalTriggers",
+    "mfosGate",
+    "eventEnvelope",
+    "trustContext",
+    "integrationContext",
+    "processingProfile",
+    "idempotencyProfile",
+    "auditRecord"
+  ],
+  "decisionPriority": [
+    "block",
+    "slow",
+    "allow"
+  ],
+  "gateRules": {
+    "allow": [
+      "ACTION_NONE_AND_CONSEQUENCE_LOW",
+      "PRESSURE_NONE_OR_MILD",
+      "OWNERSHIP_NOT_REQUIRED_OR_VERIFIED"
+    ],
+    "slow": [
+      "ACTION_IMPLIED",
+      "PRESSURE_MODERATE",
+      "CONSEQUENCE_MEDIUM",
+      "OWNERSHIP_UNCLEAR",
+      "IDENTITY_UNVERIFIED",
+      "AMBIGUITY_HIGH",
+      "VERIFICATION_PENDING",
+      "AUTHENTICATION_PARTIAL",
+      "TRUST_CONTEXT_LOW",
+      "SIGNATURE_MISSING",
+      "TRACE_MISSING"
+    ],
+    "block": [
+      "ACTION_EXPLICIT_AND_PRESSURE_STRONG",
+      "CONSEQUENCE_HIGH_AND_VERIFICATION_WEAK",
+      "IRREVERSIBLE_ACTION_WITHOUT_VERIFIED_OWNER",
+      "SELF_APPROVAL_WHEN_SECOND_REVIEW_REQUIRED",
+      "SECRECY_PLUS_HIGH_RISK_ACTION",
+      "CREDENTIAL_REQUEST_IN_LOW_TRUST_CONTEXT",
+      "AUTHENTICATION_FAILED",
+      "AUTHORIZATION_FAILED",
+      "SIGNATURE_INVALID",
+      "REPLAY_DETECTED",
+      "IDEMPOTENCY_KEY_MISSING",
+      "TRANSPORT_UNTRUSTED"
+    ]
+  },
+  "reasonCodeCatalog": {
+    "ACTION_NONE": "No action is being directed at the user or operator.",
+    "ACTION_IMPLIED": "A directional request is present but the exact action is still incomplete or deferred.",
+    "ACTION_EXPLICIT": "A concrete action is directly requested.",
+    "PRESSURE_MILD": "Pressure exists but is not strongly compressing tempo or choice.",
+    "PRESSURE_MODERATE": "Pressure is meaningfully shaping decision tempo or emotional framing.",
+    "PRESSURE_STRONG": "Pressure is actively compressing tempo, narrowing choice, or driving compliance.",
+    "CONSEQUENCE_LOW": "Little or no meaningful harm exposure is present.",
+    "CONSEQUENCE_MEDIUM": "The action can affect trust, workflow, policy, or moderate resources.",
+    "CONSEQUENCE_HIGH": "The action can materially affect money, systems, identity, compliance, or safety.",
+    "IRREVERSIBLE_ACTION": "The requested action cannot be easily undone.",
+    "AUTHORITY_FORMAL": "The message or workflow invokes formal authority or process.",
+    "AUTHORITY_COERCIVE": "Authority is being used to force compliance.",
+    "TEMPO_SOFT": "Some urgency exists, but delay is still plausible.",
+    "TEMPO_HARD": "The message or workflow pushes immediate or near-immediate action.",
+    "IDENTITY_UNVERIFIED": "The sender or initiating actor is not sufficiently verified.",
+    "AMBIGUITY_HIGH": "The action or context remains materially unclear.",
+    "OWNERSHIP_MISSING": "No explicit owner is present for carrying the action across the boundary.",
+    "OWNERSHIP_UNVERIFIED": "An owner exists but is not verified or not permitted to commit this action.",
+    "SELF_APPROVAL_BLOCKED": "The same actor is attempting to approve their own high-risk action where independent review is required.",
+    "SECOND_REVIEW_REQUIRED": "The action cannot proceed without an independent reviewer.",
+    "SECRECY_PRESENT": "The message introduces secrecy as a control tactic.",
+    "VERIFICATION_PENDING": "Required verification steps have not completed yet.",
+    "AUTHENTICATION_PARTIAL": "Some identity evidence exists, but the actor has not been fully authenticated for the requested action.",
+    "AUTHENTICATION_FAILED": "Identity validation failed or no trusted identity proof is available where policy requires it.",
+    "AUTHORIZATION_FAILED": "The actor is verified but is not permitted to request or approve the action.",
+    "TRUST_CONTEXT_LOW": "The channel, source, or transport does not meet the minimum trust level for the requested action.",
+    "SIGNATURE_MISSING": "A signed message or signed workflow event was required, but no valid signature was provided.",
+    "SIGNATURE_INVALID": "A signature or cryptographic proof was present but failed validation.",
+    "TRANSPORT_UNTRUSTED": "The event arrived through a channel that does not meet required transport integrity.",
+    "EVENT_DUPLICATE": "The event matches a previously received event and should not trigger fresh side effects.",
+    "REPLAY_DETECTED": "A previously committed or processed event reappeared outside acceptable retry semantics.",
+    "IDEMPOTENCY_KEY_MISSING": "A mutating action lacks the idempotency key required for safe distributed processing.",
+    "TRACE_MISSING": "The event cannot be reliably traced across systems because required identifiers are absent."
+  },
+  "testMatrix": {
+    "pressureStrength": [
+      "none",
+      "mild",
+      "moderate",
+      "strong"
+    ],
+    "actionMode": [
+      "none",
+      "implied",
+      "explicit"
+    ],
+    "consequenceSeverity": [
+      "low",
+      "medium",
+      "high",
+      "irreversible"
+    ],
+    "authorityType": [
+      "none",
+      "informal",
+      "formal",
+      "coercive"
+    ],
+    "ownershipState": [
+      "not_required",
+      "explicit_verified",
+      "explicit_unverified",
+      "missing"
+    ],
+    "coreCoverageGoals": [
+      "clean routine message",
+      "educational or descriptive language with no directed action",
+      "ambiguous emotional pressure with deferred risk",
+      "explicit financial pressure",
+      "friendly tone plus risky action",
+      "formal workflow ownership failure",
+      "high-risk credential request in low-trust channel",
+      "duplicate or replayed mutation event",
+      "verified internal API action under traceable identity",
+      "mutating event missing idempotency controls"
+    ],
+    "securityTrust": [
+      "not_applicable",
+      "partial",
+      "verified",
+      "failed"
+    ],
+    "deliveryMode": [
+      "inline_sync",
+      "async_queue"
+    ],
+    "duplicateState": [
+      "new",
+      "duplicate_same_payload",
+      "duplicate_conflict",
+      "replay_after_commit"
+    ]
+  },
+  "cases": [
+    {
+      "caseId": "clean_routine_review_001",
+      "title": "Routine review with no pressure and no risky action",
+      "packetType": "clean",
+      "input": {
+        "sourceType": "email",
+        "channel": "inbound_message",
+        "content": "I updated the draft timeline for next week. Review it when you have time and let me know what needs to change.",
+        "contextNotes": [
+          "known business thread",
+          "no money request",
+          "no secrecy",
+          "no urgency"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": false,
+          "types": [],
+          "strength": "none",
+          "evidence": []
+        },
+        "actionIntent": {
+          "present": false,
+          "mode": "none",
+          "targetAction": "none",
+          "actionCount": 0,
+          "deferredRisk": false,
+          "evidence": []
+        },
+        "consequenceProfile": {
+          "severity": "low",
+          "domains": [],
+          "recoveryDifficulty": "easy",
+          "irreversible": false,
+          "exposureLevel": "minimal"
+        },
+        "authorityProfile": {
+          "present": false,
+          "type": "none",
+          "strength": "none",
+          "evidence": []
+        },
+        "tempoProfile": {
+          "urgencyLevel": "none",
+          "timeConstraint": "none",
+          "cooldownRecommended": false,
+          "evidence": []
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "clear",
+          "verificationState": "verified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": false,
+        "actorType": "none",
+        "actorId": null,
+        "explicit": false,
+        "verified": false,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": false
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 0,
+        "actionScore": 0,
+        "consequenceScore": 0,
+        "authorityScore": 0,
+        "tempoScore": 0,
+        "ownershipScore": 0,
+        "mechanicalTriggers": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ]
+      },
+      "mfosGate": {
+        "decision": "allow",
+        "reasonCodes": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ],
+        "explanation": "Routine review message with no directional risk, no tempo compression, and no meaningful consequence exposure.",
+        "requiredNextSteps": []
+      },
+      "groundTruth": {
+        "expectedDecision": "allow",
+        "mustIncludeReasonCodes": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "PRESSURE_STRONG",
+          "ACTION_EXPLICIT",
+          "OWNERSHIP_MISSING"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_clean_routine_review_001",
+        "traceId": "trc_clean_routine_review_001",
+        "sourceSystem": "email",
+        "adapterType": "mail_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_clean_routine_review_001",
+        "payloadHash": "8485814aee8c11e8781686e34bc896a839be8f6ed29faf03403ac5ba5bcaaf1d",
+        "dedupeKey": "email:clean_routine_review_001"
+      },
+      "trustContext": {
+        "authenticationState": "verified",
+        "authorizationState": "not_required",
+        "identityProofingMethod": "directory_session",
+        "sourceTrustLevel": "standard",
+        "signatureState": "not_required",
+        "transportIntegrity": "external_standard_tls"
+      },
+      "integrationContext": {
+        "inboundAdapter": "mail_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.0"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": false,
+        "idempotencyKey": null,
+        "duplicateCheckRequired": false,
+        "duplicateState": "new",
+        "priorDecisionReuse": "not_applicable",
+        "replayWindowHours": 0
+      },
+      "auditRecord": {
+        "eventId": "evt_clean_routine_review_001",
+        "traceId": "trc_clean_routine_review_001",
+        "decision": "allow",
+        "decisionVersion": "1.4.0",
+        "policyVersion": "1.4.0",
+        "mustPersist": true
+      }
+    },
+    {
+      "caseId": "false_positive_educational_001",
+      "title": "Educational scam article contains pressure language but does not direct user action",
+      "packetType": "false_positive_resistance",
+      "input": {
+        "sourceType": "article",
+        "channel": "webpage",
+        "content": "Scammers often create urgency to pressure people into sending money quickly. A common tactic is pretending there is no time to verify the request.",
+        "contextNotes": [
+          "educational content",
+          "describes scam tactics",
+          "no direct request to reader"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": true,
+          "types": [
+            "urgency"
+          ],
+          "strength": "mild",
+          "evidence": [
+            "create urgency",
+            "no time to verify"
+          ]
+        },
+        "actionIntent": {
+          "present": false,
+          "mode": "none",
+          "targetAction": "none",
+          "actionCount": 0,
+          "deferredRisk": false,
+          "evidence": []
+        },
+        "consequenceProfile": {
+          "severity": "low",
+          "domains": [],
+          "recoveryDifficulty": "easy",
+          "irreversible": false,
+          "exposureLevel": "minimal"
+        },
+        "authorityProfile": {
+          "present": false,
+          "type": "none",
+          "strength": "none",
+          "evidence": []
+        },
+        "tempoProfile": {
+          "urgencyLevel": "none",
+          "timeConstraint": "none",
+          "cooldownRecommended": false,
+          "evidence": []
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "clear",
+          "verificationState": "verified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": false,
+        "actorType": "none",
+        "actorId": null,
+        "explicit": false,
+        "verified": false,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": false
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 1,
+        "actionScore": 0,
+        "consequenceScore": 0,
+        "authorityScore": 0,
+        "tempoScore": 0,
+        "ownershipScore": 0,
+        "mechanicalTriggers": [
+          "PRESSURE_MILD",
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ]
+      },
+      "mfosGate": {
+        "decision": "allow",
+        "reasonCodes": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ],
+        "explanation": "Pressure language is present only as description. No action is being pushed across the boundary.",
+        "requiredNextSteps": []
+      },
+      "groundTruth": {
+        "expectedDecision": "allow",
+        "mustIncludeReasonCodes": [
+          "ACTION_NONE"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "ACTION_EXPLICIT",
+          "PRESSURE_STRONG",
+          "OWNERSHIP_MISSING"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_false_positive_educational_001",
+        "traceId": "trc_false_positive_educational_001",
+        "sourceSystem": "article",
+        "adapterType": "content_ingest_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_false_positive_educational_001",
+        "payloadHash": "045228a4412d3f607ff8bf4789664d50710ce7945cc6be5336e58227425ce3d4",
+        "dedupeKey": "article:false_positive_educational_001"
+      },
+      "trustContext": {
+        "authenticationState": "not_applicable",
+        "authorizationState": "not_required",
+        "identityProofingMethod": "not_applicable",
+        "sourceTrustLevel": "standard",
+        "signatureState": "not_required",
+        "transportIntegrity": "external_standard_tls"
+      },
+      "integrationContext": {
+        "inboundAdapter": "content_ingest_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.0"
+      },
+      "processingProfile": {
+        "executionPath": "async_queue",
+        "latencyClass": "batch",
+        "targetDecisionLatencyMs": 30000,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": false
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": false,
+        "idempotencyKey": null,
+        "duplicateCheckRequired": false,
+        "duplicateState": "new",
+        "priorDecisionReuse": "not_applicable",
+        "replayWindowHours": 0
+      },
+      "auditRecord": {
+        "eventId": "evt_false_positive_educational_001",
+        "traceId": "trc_false_positive_educational_001",
+        "decision": "allow",
+        "decisionVersion": "1.4.0",
+        "policyVersion": "1.4.0",
+        "mustPersist": true
+      }
+    },
+    {
+      "caseId": "ambiguous_help_request_001",
+      "title": "Emotionally loaded request that implies action but keeps the ask vague",
+      "packetType": "ambiguous",
+      "input": {
+        "sourceType": "sms",
+        "channel": "inbound_message",
+        "content": "Hey, can you help me out today? I\u2019m in a tight spot and really need a favor.",
+        "contextNotes": [
+          "request is not yet specific",
+          "sender identity not independently verified"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": true,
+          "types": [
+            "emotional_leverage"
+          ],
+          "strength": "mild",
+          "evidence": [
+            "tight spot",
+            "really need a favor"
+          ]
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "implied",
+          "targetAction": "other",
+          "actionCount": 1,
+          "deferredRisk": true,
+          "evidence": [
+            "help me out today"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "medium",
+          "domains": [
+            "trust"
+          ],
+          "recoveryDifficulty": "moderate",
+          "irreversible": false,
+          "exposureLevel": "limited"
+        },
+        "authorityProfile": {
+          "present": false,
+          "type": "none",
+          "strength": "none",
+          "evidence": []
+        },
+        "tempoProfile": {
+          "urgencyLevel": "implied",
+          "timeConstraint": "soft",
+          "cooldownRecommended": true,
+          "evidence": [
+            "today"
+          ]
+        },
+        "clarityProfile": {
+          "requestClarity": "partial",
+          "identityClarity": "partial",
+          "verificationState": "unverified",
+          "ambiguityLevel": "high"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "user",
+        "actorId": "local_user",
+        "explicit": false,
+        "verified": false,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": false
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 1,
+        "actionScore": 2,
+        "consequenceScore": 2,
+        "authorityScore": 0,
+        "tempoScore": 1,
+        "ownershipScore": 0,
+        "mechanicalTriggers": [
+          "ACTION_IMPLIED",
+          "AMBIGUITY_HIGH",
+          "IDENTITY_UNVERIFIED",
+          "OWNERSHIP_MISSING",
+          "TEMPO_SOFT"
+        ]
+      },
+      "mfosGate": {
+        "decision": "slow",
+        "reasonCodes": [
+          "ACTION_IMPLIED",
+          "AMBIGUITY_HIGH",
+          "OWNERSHIP_MISSING",
+          "IDENTITY_UNVERIFIED"
+        ],
+        "explanation": "Directional pressure is present, but the actual ask remains unclear and verification is incomplete.",
+        "requiredNextSteps": [
+          "clarify the requested action",
+          "verify sender identity through an independent channel",
+          "establish explicit ownership before any action"
+        ]
+      },
+      "groundTruth": {
+        "expectedDecision": "slow",
+        "mustIncludeReasonCodes": [
+          "ACTION_IMPLIED",
+          "AMBIGUITY_HIGH"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "ACTION_NONE",
+          "PRESSURE_STRONG",
+          "SELF_APPROVAL_BLOCKED"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_ambiguous_help_request_001",
+        "traceId": "trc_ambiguous_help_request_001",
+        "sourceSystem": "sms",
+        "adapterType": "sms_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_ambiguous_help_request_001",
+        "payloadHash": "ee77810e3b80e30908733b02938d04f635997c2d5880bb58323f10230b57b5e5",
+        "dedupeKey": "sms:ambiguous_help_request_001"
+      },
+      "trustContext": {
+        "authenticationState": "failed",
+        "authorizationState": "not_required",
+        "identityProofingMethod": "not_applicable",
+        "sourceTrustLevel": "low",
+        "signatureState": "not_required",
+        "transportIntegrity": "external_untrusted"
+      },
+      "integrationContext": {
+        "inboundAdapter": "sms_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.0"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": false,
+        "idempotencyKey": null,
+        "duplicateCheckRequired": false,
+        "duplicateState": "new",
+        "priorDecisionReuse": "not_applicable",
+        "replayWindowHours": 0
+      },
+      "auditRecord": {
+        "eventId": "evt_ambiguous_help_request_001",
+        "traceId": "trc_ambiguous_help_request_001",
+        "decision": "slow",
+        "decisionVersion": "1.4.0",
+        "policyVersion": "1.4.0",
+        "mustPersist": true
+      }
+    },
+    {
+      "caseId": "financial_pressure_cashapp_001",
+      "title": "Explicit money request with urgency and obligation pressure",
+      "packetType": "pressure",
+      "input": {
+        "sourceType": "email",
+        "channel": "inbound_message",
+        "content": "Hey, I\u2019m facing a real family issue and I would like your help with some money. Can you send me $200 on Cash App today? I promise to pay you back by the end of the week. Please do this right now.",
+        "contextNotes": [
+          "sender identity unverified",
+          "money request present",
+          "high-trust emotional framing attempted"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": true,
+          "types": [
+            "urgency",
+            "crisis_leverage",
+            "forced_reciprocity"
+          ],
+          "strength": "strong",
+          "evidence": [
+            "family issue",
+            "today",
+            "promise to pay you back",
+            "right now"
+          ]
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "explicit",
+          "targetAction": "send_money",
+          "actionCount": 1,
+          "deferredRisk": false,
+          "evidence": [
+            "send me $200 on Cash App today",
+            "Please do this right now"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "high",
+          "domains": [
+            "financial",
+            "trust"
+          ],
+          "recoveryDifficulty": "hard",
+          "irreversible": true,
+          "exposureLevel": "significant"
+        },
+        "authorityProfile": {
+          "present": false,
+          "type": "none",
+          "strength": "none",
+          "evidence": []
+        },
+        "tempoProfile": {
+          "urgencyLevel": "explicit",
+          "timeConstraint": "hard",
+          "cooldownRecommended": true,
+          "evidence": [
+            "today",
+            "right now"
+          ]
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "unclear",
+          "verificationState": "unverified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "user",
+        "actorId": "local_user",
+        "explicit": false,
+        "verified": false,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": false
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 3,
+        "actionScore": 3,
+        "consequenceScore": 3,
+        "authorityScore": 0,
+        "tempoScore": 3,
+        "ownershipScore": 0,
+        "mechanicalTriggers": [
+          "PRESSURE_STRONG",
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "IRREVERSIBLE_ACTION",
+          "TEMPO_HARD",
+          "OWNERSHIP_MISSING",
+          "IDENTITY_UNVERIFIED"
+        ]
+      },
+      "mfosGate": {
+        "decision": "block",
+        "reasonCodes": [
+          "PRESSURE_STRONG",
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "OWNERSHIP_MISSING",
+          "IDENTITY_UNVERIFIED",
+          "IRREVERSIBLE_ACTION"
+        ],
+        "explanation": "Explicit high-risk money movement is requested under strong pressure with no verified sender and no explicit owner carrying the action.",
+        "requiredNextSteps": [
+          "verify sender identity through an independent channel",
+          "do not move money until verification completes",
+          "establish explicit ownership before any action"
+        ]
+      },
+      "groundTruth": {
+        "expectedDecision": "block",
+        "mustIncludeReasonCodes": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "PRESSURE_STRONG"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW",
+          "AUTHORITY_FORMAL"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_financial_pressure_cashapp_001",
+        "traceId": "trc_financial_pressure_cashapp_001",
+        "sourceSystem": "email",
+        "adapterType": "mail_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_financial_pressure_cashapp_001",
+        "payloadHash": "4e58fa5ecb47c0d0251540ae9fb6a4d5f35ed7f711bf663071a26bb5c0ddef9e",
+        "dedupeKey": "email:financial_pressure_cashapp_001"
+      },
+      "trustContext": {
+        "authenticationState": "failed",
+        "authorizationState": "not_required",
+        "identityProofingMethod": "not_applicable",
+        "sourceTrustLevel": "low",
+        "signatureState": "not_required",
+        "transportIntegrity": "external_untrusted"
+      },
+      "integrationContext": {
+        "inboundAdapter": "mail_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.0"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": true,
+        "idempotencyKey": "idem_financial_pressure_cashapp_001",
+        "duplicateCheckRequired": true,
+        "duplicateState": "new",
+        "priorDecisionReuse": "return_cached_decision_if_duplicate",
+        "replayWindowHours": 72
+      },
+      "auditRecord": {
+        "eventId": "evt_financial_pressure_cashapp_001",
+        "traceId": "trc_financial_pressure_cashapp_001",
+        "decision": "block",
+        "decisionVersion": "1.4.0",
+        "policyVersion": "1.4.0",
+        "mustPersist": true
+      }
+    },
+    {
+      "caseId": "friendly_bank_change_001",
+      "title": "Warm tone and known context do not erase a risky bank-change request",
+      "packetType": "deferred_risk",
+      "input": {
+        "sourceType": "email",
+        "channel": "inbound_message",
+        "content": "Hope you\u2019re doing well. Quick favor before Friday. We changed banks for payouts, so please update the remittance account on file and reply once it\u2019s done so we can keep shipping on schedule.",
+        "contextNotes": [
+          "friendly tone",
+          "vendor-style operational request",
+          "bank-change request can alter money destination",
+          "verification not yet completed"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": true,
+          "types": [
+            "urgency"
+          ],
+          "strength": "moderate",
+          "evidence": [
+            "before Friday",
+            "keep shipping on schedule"
+          ]
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "explicit",
+          "targetAction": "approve",
+          "actionCount": 2,
+          "deferredRisk": true,
+          "evidence": [
+            "update the remittance account on file",
+            "reply once it\u2019s done"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "high",
+          "domains": [
+            "financial",
+            "policy"
+          ],
+          "recoveryDifficulty": "hard",
+          "irreversible": true,
+          "exposureLevel": "significant"
+        },
+        "authorityProfile": {
+          "present": true,
+          "type": "informal",
+          "strength": "mild",
+          "evidence": [
+            "quick favor"
+          ]
+        },
+        "tempoProfile": {
+          "urgencyLevel": "explicit",
+          "timeConstraint": "soft",
+          "cooldownRecommended": true,
+          "evidence": [
+            "before Friday"
+          ]
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "partial",
+          "verificationState": "partial",
+          "ambiguityLevel": "medium"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "operator",
+        "actorId": "ap_clerk_01",
+        "explicit": true,
+        "verified": true,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": true
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 2,
+        "actionScore": 3,
+        "consequenceScore": 3,
+        "authorityScore": 1,
+        "tempoScore": 1,
+        "ownershipScore": 2,
+        "mechanicalTriggers": [
+          "PRESSURE_MODERATE",
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "IRREVERSIBLE_ACTION",
+          "VERIFICATION_PENDING",
+          "SECOND_REVIEW_REQUIRED"
+        ]
+      },
+      "mfosGate": {
+        "decision": "slow",
+        "reasonCodes": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "VERIFICATION_PENDING",
+          "SECOND_REVIEW_REQUIRED"
+        ],
+        "explanation": "The tone is warm, but the action changes a payout destination and cannot proceed until independent verification and required review complete.",
+        "requiredNextSteps": [
+          "verify bank-change request through a trusted system of record or independent callback",
+          "route to required reviewer",
+          "separate message tone from payment-routing risk"
+        ]
+      },
+      "groundTruth": {
+        "expectedDecision": "slow",
+        "mustIncludeReasonCodes": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "SECOND_REVIEW_REQUIRED"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW",
+          "OWNERSHIP_MISSING"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_friendly_bank_change_001",
+        "traceId": "trc_friendly_bank_change_001",
+        "sourceSystem": "email",
+        "adapterType": "mail_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_friendly_bank_change_001",
+        "payloadHash": "3ed82ca7f36ea00a091496d2d5e58887ed6c68a171319da5151e5ca4625cd44a",
+        "dedupeKey": "email:friendly_bank_change_001"
+      },
+      "trustContext": {
+        "authenticationState": "partial",
+        "authorizationState": "verified",
+        "identityProofingMethod": "known_callback_to_system_of_record",
+        "sourceTrustLevel": "elevated_review",
+        "signatureState": "missing",
+        "transportIntegrity": "external_standard_tls"
+      },
+      "integrationContext": {
+        "inboundAdapter": "mail_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.0"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": true,
+        "idempotencyKey": "idem_friendly_bank_change_001",
+        "duplicateCheckRequired": true,
+        "duplicateState": "new",
+        "priorDecisionReuse": "return_cached_decision_if_duplicate",
+        "replayWindowHours": 72
+      },
+      "auditRecord": {
+        "eventId": "evt_friendly_bank_change_001",
+        "traceId": "trc_friendly_bank_change_001",
+        "decision": "slow",
+        "decisionVersion": "1.4.0",
+        "policyVersion": "1.4.0",
+        "mustPersist": true
+      }
+    },
+    {
+      "caseId": "ownership_self_approval_001",
+      "title": "Formal workflow where the same actor tries to approve a high-risk payout they initiated",
+      "packetType": "ownership_enforcement",
+      "input": {
+        "sourceType": "workflow_event",
+        "channel": "decision_prompt",
+        "content": "Approve this high-value payout now.",
+        "contextNotes": [
+          "same operator created and is attempting to approve",
+          "policy requires second review"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": false,
+          "types": [],
+          "strength": "none",
+          "evidence": []
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "explicit",
+          "targetAction": "approve",
+          "actionCount": 1,
+          "deferredRisk": false,
+          "evidence": [
+            "Approve this high-value payout now"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "high",
+          "domains": [
+            "financial",
+            "compliance"
+          ],
+          "recoveryDifficulty": "hard",
+          "irreversible": false,
+          "exposureLevel": "significant"
+        },
+        "authorityProfile": {
+          "present": true,
+          "type": "formal",
+          "strength": "moderate",
+          "evidence": [
+            "workflow approval request",
+            "policy requires second review"
+          ]
+        },
+        "tempoProfile": {
+          "urgencyLevel": "explicit",
+          "timeConstraint": "soft",
+          "cooldownRecommended": true,
+          "evidence": [
+            "now"
+          ]
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "clear",
+          "verificationState": "verified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "operator",
+        "actorId": "op_123",
+        "explicit": true,
+        "verified": true,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": true,
+        "secondReviewRequired": true
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 0,
+        "actionScore": 3,
+        "consequenceScore": 3,
+        "authorityScore": 2,
+        "tempoScore": 1,
+        "ownershipScore": 1,
+        "mechanicalTriggers": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "AUTHORITY_FORMAL",
+          "SELF_APPROVAL_BLOCKED",
+          "SECOND_REVIEW_REQUIRED"
+        ]
+      },
+      "mfosGate": {
+        "decision": "block",
+        "reasonCodes": [
+          "SELF_APPROVAL_BLOCKED",
+          "SECOND_REVIEW_REQUIRED",
+          "CONSEQUENCE_HIGH",
+          "AUTHORITY_FORMAL"
+        ],
+        "explanation": "The actor is present and verified, but they cannot approve their own high-risk action where independent review is required.",
+        "requiredNextSteps": [
+          "route to an independent reviewer",
+          "record initiator and reviewer separately",
+          "prevent self-approval bypass at execution time"
+        ]
+      },
+      "groundTruth": {
+        "expectedDecision": "block",
+        "mustIncludeReasonCodes": [
+          "SELF_APPROVAL_BLOCKED",
+          "SECOND_REVIEW_REQUIRED"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "OWNERSHIP_MISSING",
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_ownership_self_approval_001",
+        "traceId": "trc_ownership_self_approval_001",
+        "sourceSystem": "workflow_event",
+        "adapterType": "workflow_api_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_ownership_self_approval_001",
+        "payloadHash": "096635dbeef8cc43cda6d5fe7fbf6b3d1cb0cf67decdf648c02281ea05748189",
+        "dedupeKey": "workflow_event:ownership_self_approval_001"
+      },
+      "trustContext": {
+        "authenticationState": "verified",
+        "authorizationState": "verified",
+        "identityProofingMethod": "signed_internal_workflow_event",
+        "sourceTrustLevel": "high",
+        "signatureState": "verified",
+        "transportIntegrity": "trusted_internal_tls"
+      },
+      "integrationContext": {
+        "inboundAdapter": "workflow_api_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.0"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": true,
+        "idempotencyKey": "idem_ownership_self_approval_001",
+        "duplicateCheckRequired": true,
+        "duplicateState": "new",
+        "priorDecisionReuse": "return_cached_decision_if_duplicate",
+        "replayWindowHours": 72
+      },
+      "auditRecord": {
+        "eventId": "evt_ownership_self_approval_001",
+        "traceId": "trc_ownership_self_approval_001",
+        "decision": "block",
+        "decisionVersion": "1.4.0",
+        "policyVersion": "1.4.0",
+        "mustPersist": true
+      }
+    },
+    {
+      "caseId": "credential_request_low_trust_001",
+      "title": "Credential reset request arrives through a low-trust external message",
+      "packetType": "security_enforcement",
+      "input": {
+        "sourceType": "email",
+        "channel": "inbound_message",
+        "content": "Security needs you to confirm your admin password today so we can keep your access active. Reply with your current password and MFA code now.",
+        "contextNotes": [
+          "credential request",
+          "external message",
+          "no approved secret exchange path",
+          "sender identity unverified"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": true,
+          "types": [
+            "urgency",
+            "authority_mimicry"
+          ],
+          "strength": "strong",
+          "evidence": [
+            "today",
+            "now",
+            "keep your access active",
+            "Security needs you"
+          ]
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "explicit",
+          "targetAction": "share_credentials",
+          "actionCount": 1,
+          "deferredRisk": false,
+          "evidence": [
+            "Reply with your current password and MFA code now"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "high",
+          "domains": [
+            "identity",
+            "security",
+            "systems"
+          ],
+          "recoveryDifficulty": "hard",
+          "irreversible": true,
+          "exposureLevel": "significant"
+        },
+        "authorityProfile": {
+          "present": true,
+          "type": "coercive",
+          "strength": "strong",
+          "evidence": [
+            "Security needs you",
+            "keep your access active"
+          ]
+        },
+        "tempoProfile": {
+          "urgencyLevel": "explicit",
+          "timeConstraint": "hard",
+          "cooldownRecommended": true,
+          "evidence": [
+            "today",
+            "now"
+          ]
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "unclear",
+          "verificationState": "unverified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "user",
+        "actorId": "local_user",
+        "explicit": false,
+        "verified": false,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": false
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 3,
+        "actionScore": 3,
+        "consequenceScore": 3,
+        "authorityScore": 3,
+        "tempoScore": 3,
+        "ownershipScore": 0,
+        "mechanicalTriggers": [
+          "PRESSURE_STRONG",
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "AUTHORITY_COERCIVE",
+          "AUTHENTICATION_FAILED",
+          "TRUST_CONTEXT_LOW",
+          "TRANSPORT_UNTRUSTED"
+        ]
+      },
+      "mfosGate": {
+        "decision": "block",
+        "reasonCodes": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "AUTHENTICATION_FAILED",
+          "TRUST_CONTEXT_LOW",
+          "TRANSPORT_UNTRUSTED"
+        ],
+        "explanation": "Credential disclosure is requested through an untrusted external channel with no approved secret exchange path and no verified requester.",
+        "requiredNextSteps": [
+          "do not send credentials or MFA codes",
+          "verify with the security team through an approved internal channel",
+          "restrict credential exchange to approved secret reset workflow"
+        ]
+      },
+      "groundTruth": {
+        "expectedDecision": "block",
+        "mustIncludeReasonCodes": [
+          "AUTHENTICATION_FAILED",
+          "TRANSPORT_UNTRUSTED"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_credential_request_low_trust_001",
+        "traceId": "trc_credential_request_low_trust_001",
+        "sourceSystem": "email",
+        "adapterType": "mail_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_credential_request_low_trust_001",
+        "payloadHash": "4980f774b0e0988c2b7617c92af5bcbdc65bc9ec6acfa8a5525ad27ad6d26cd1",
+        "dedupeKey": "email:credential_request_low_trust_001"
+      },
+      "trustContext": {
+        "authenticationState": "failed",
+        "authorizationState": "not_required",
+        "identityProofingMethod": "not_applicable",
+        "sourceTrustLevel": "low",
+        "signatureState": "not_required",
+        "transportIntegrity": "external_untrusted"
+      },
+      "integrationContext": {
+        "inboundAdapter": "mail_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.0"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 100,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": false,
+        "idempotencyKey": null,
+        "duplicateCheckRequired": false,
+        "duplicateState": "new",
+        "priorDecisionReuse": "not_applicable",
+        "replayWindowHours": 0
+      },
+      "auditRecord": {
+        "eventId": "evt_credential_request_low_trust_001",
+        "traceId": "trc_credential_request_low_trust_001",
+        "decision": "block",
+        "decisionVersion": "1.4.0",
+        "policyVersion": "1.4.0",
+        "mustPersist": true
+      }
+    },
+    {
+      "caseId": "verified_internal_api_change_001",
+      "title": "Signed internal API request performs a low-risk metadata change under verified identity",
+      "packetType": "interoperability",
+      "input": {
+        "sourceType": "api_request",
+        "channel": "service_call",
+        "content": "PATCH /customer/123/preferences {\"paperlessStatement\": true}",
+        "contextNotes": [
+          "mTLS service identity verified",
+          "authorized service account",
+          "trace identifiers present",
+          "low-risk reversible preference change"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": false,
+          "types": [],
+          "strength": "none",
+          "evidence": []
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "explicit",
+          "targetAction": "update_preference",
+          "actionCount": 1,
+          "deferredRisk": false,
+          "evidence": [
+            "PATCH preferences request"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "low",
+          "domains": [
+            "workflow"
+          ],
+          "recoveryDifficulty": "easy",
+          "irreversible": false,
+          "exposureLevel": "minimal"
+        },
+        "authorityProfile": {
+          "present": true,
+          "type": "formal",
+          "strength": "moderate",
+          "evidence": [
+            "service account request"
+          ]
+        },
+        "tempoProfile": {
+          "urgencyLevel": "none",
+          "timeConstraint": "none",
+          "cooldownRecommended": false,
+          "evidence": []
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "clear",
+          "verificationState": "verified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "service_account",
+        "actorId": "svc_customer_pref",
+        "explicit": true,
+        "verified": true,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": false
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 0,
+        "actionScore": 3,
+        "consequenceScore": 0,
+        "authorityScore": 2,
+        "tempoScore": 0,
+        "ownershipScore": 2,
+        "mechanicalTriggers": [
+          "ACTION_EXPLICIT",
+          "AUTHORITY_FORMAL"
+        ]
+      },
+      "mfosGate": {
+        "decision": "allow",
+        "reasonCodes": [
+          "ACTION_EXPLICIT"
+        ],
+        "explanation": "The request is explicit but low-risk, reversible, fully authenticated, authorized, traceable, and permitted under the adapter contract.",
+        "requiredNextSteps": []
+      },
+      "groundTruth": {
+        "expectedDecision": "allow",
+        "mustIncludeReasonCodes": [
+          "ACTION_EXPLICIT"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "AUTHENTICATION_FAILED",
+          "REPLAY_DETECTED",
+          "IDEMPOTENCY_KEY_MISSING"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_verified_internal_api_change_001",
+        "traceId": "trc_verified_internal_api_change_001",
+        "sourceSystem": "api_request",
+        "adapterType": "api_gateway_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_verified_internal_api_change_001",
+        "payloadHash": "975e4f11ce9754d6a2d8a51ddc2095dabfd48d3e5339713ef92164604c267023",
+        "dedupeKey": "api_request:verified_internal_api_change_001"
+      },
+      "trustContext": {
+        "authenticationState": "verified",
+        "authorizationState": "verified",
+        "identityProofingMethod": "mutual_tls_service_identity",
+        "sourceTrustLevel": "high",
+        "signatureState": "verified",
+        "transportIntegrity": "trusted_internal_tls"
+      },
+      "integrationContext": {
+        "inboundAdapter": "api_gateway_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.0"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": true,
+        "idempotencyKey": "idem_verified_internal_api_change_001",
+        "duplicateCheckRequired": true,
+        "duplicateState": "new",
+        "priorDecisionReuse": "return_cached_decision_if_duplicate",
+        "replayWindowHours": 24
+      },
+      "auditRecord": {
+        "eventId": "evt_verified_internal_api_change_001",
+        "traceId": "trc_verified_internal_api_change_001",
+        "decision": "allow",
+        "decisionVersion": "1.4.0",
+        "policyVersion": "1.4.0",
+        "mustPersist": true
+      }
+    },
+    {
+      "caseId": "duplicate_payout_replay_001",
+      "title": "Previously committed payout event reappears as a replay",
+      "packetType": "idempotency",
+      "input": {
+        "sourceType": "workflow_event",
+        "channel": "decision_prompt",
+        "content": "Approve payout batch B-7782 for release.",
+        "contextNotes": [
+          "same eventId already committed",
+          "same payloadHash seen after commit",
+          "no new authorization context"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": false,
+          "types": [],
+          "strength": "none",
+          "evidence": []
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "explicit",
+          "targetAction": "approve",
+          "actionCount": 1,
+          "deferredRisk": false,
+          "evidence": [
+            "Approve payout batch B-7782 for release"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "high",
+          "domains": [
+            "financial",
+            "compliance"
+          ],
+          "recoveryDifficulty": "hard",
+          "irreversible": false,
+          "exposureLevel": "significant"
+        },
+        "authorityProfile": {
+          "present": true,
+          "type": "formal",
+          "strength": "moderate",
+          "evidence": [
+            "workflow approval request"
+          ]
+        },
+        "tempoProfile": {
+          "urgencyLevel": "none",
+          "timeConstraint": "none",
+          "cooldownRecommended": false,
+          "evidence": []
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "clear",
+          "verificationState": "verified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "operator",
+        "actorId": "op_991",
+        "explicit": true,
+        "verified": true,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": false
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 0,
+        "actionScore": 3,
+        "consequenceScore": 3,
+        "authorityScore": 2,
+        "tempoScore": 0,
+        "ownershipScore": 2,
+        "mechanicalTriggers": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "AUTHORITY_FORMAL",
+          "EVENT_DUPLICATE",
+          "REPLAY_DETECTED"
+        ]
+      },
+      "mfosGate": {
+        "decision": "block",
+        "reasonCodes": [
+          "REPLAY_DETECTED",
+          "EVENT_DUPLICATE",
+          "CONSEQUENCE_HIGH"
+        ],
+        "explanation": "A committed payout event reappeared without new authorization. The system must not re-execute side effects on replay.",
+        "requiredNextSteps": [
+          "return prior decision record",
+          "suppress payout re-execution",
+          "investigate replay source"
+        ]
+      },
+      "groundTruth": {
+        "expectedDecision": "block",
+        "mustIncludeReasonCodes": [
+          "REPLAY_DETECTED",
+          "EVENT_DUPLICATE"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_duplicate_payout_replay_001",
+        "traceId": "trc_duplicate_payout_replay_001",
+        "sourceSystem": "workflow_event",
+        "adapterType": "workflow_api_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_duplicate_payout_replay_001",
+        "payloadHash": "df3b997749b86cb45565ef5d0186949d970fba8cd72ba7459c75bd9d5f691769",
+        "dedupeKey": "workflow_event:duplicate_payout_replay_001"
+      },
+      "trustContext": {
+        "authenticationState": "verified",
+        "authorizationState": "verified",
+        "identityProofingMethod": "signed_internal_workflow_event",
+        "sourceTrustLevel": "high",
+        "signatureState": "verified",
+        "transportIntegrity": "trusted_internal_tls"
+      },
+      "integrationContext": {
+        "inboundAdapter": "workflow_api_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.0"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": true,
+        "idempotencyKey": "idem_duplicate_payout_replay_001",
+        "duplicateCheckRequired": true,
+        "duplicateState": "replay_after_commit",
+        "priorDecisionReuse": "return_cached_decision_if_duplicate",
+        "replayWindowHours": 72
+      },
+      "auditRecord": {
+        "eventId": "evt_duplicate_payout_replay_001",
+        "traceId": "trc_duplicate_payout_replay_001",
+        "decision": "block",
+        "decisionVersion": "1.4.0",
+        "policyVersion": "1.4.0",
+        "mustPersist": true
+      }
+    },
+    {
+      "caseId": "mutation_missing_idempotency_001",
+      "title": "High-risk API mutation arrives without idempotency controls",
+      "packetType": "runtime_safety",
+      "input": {
+        "sourceType": "api_request",
+        "channel": "service_call",
+        "content": "POST /vendor/payment-routing/update {\"vendorId\":\"V-19\",\"newAccount\":\"883144\"}",
+        "contextNotes": [
+          "authenticated service",
+          "mutating request",
+          "missing idempotency key",
+          "bank-routing side effect"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": false,
+          "types": [],
+          "strength": "none",
+          "evidence": []
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "explicit",
+          "targetAction": "approve",
+          "actionCount": 1,
+          "deferredRisk": false,
+          "evidence": [
+            "payment-routing update request"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "high",
+          "domains": [
+            "financial",
+            "systems"
+          ],
+          "recoveryDifficulty": "hard",
+          "irreversible": true,
+          "exposureLevel": "significant"
+        },
+        "authorityProfile": {
+          "present": true,
+          "type": "formal",
+          "strength": "moderate",
+          "evidence": [
+            "service call"
+          ]
+        },
+        "tempoProfile": {
+          "urgencyLevel": "none",
+          "timeConstraint": "none",
+          "cooldownRecommended": true,
+          "evidence": []
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "clear",
+          "verificationState": "verified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "service_account",
+        "actorId": "svc_vendor_ops",
+        "explicit": true,
+        "verified": true,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": true
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 0,
+        "actionScore": 3,
+        "consequenceScore": 3,
+        "authorityScore": 2,
+        "tempoScore": 0,
+        "ownershipScore": 2,
+        "mechanicalTriggers": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "AUTHORITY_FORMAL",
+          "IDEMPOTENCY_KEY_MISSING",
+          "SECOND_REVIEW_REQUIRED"
+        ]
+      },
+      "mfosGate": {
+        "decision": "block",
+        "reasonCodes": [
+          "IDEMPOTENCY_KEY_MISSING",
+          "CONSEQUENCE_HIGH",
+          "SECOND_REVIEW_REQUIRED"
+        ],
+        "explanation": "The request is authenticated, but a high-risk mutation cannot proceed without idempotency controls and the required review path.",
+        "requiredNextSteps": [
+          "resubmit with valid idempotency key and dedupe metadata",
+          "route through independent verification workflow",
+          "do not mutate payment routing until controls are present"
+        ]
+      },
+      "groundTruth": {
+        "expectedDecision": "block",
+        "mustIncludeReasonCodes": [
+          "IDEMPOTENCY_KEY_MISSING"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "AUTHENTICATION_FAILED",
+          "ACTION_NONE"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_mutation_missing_idempotency_001",
+        "traceId": "trc_mutation_missing_idempotency_001",
+        "sourceSystem": "api_request",
+        "adapterType": "api_gateway_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_mutation_missing_idempotency_001",
+        "payloadHash": "492d8901ef699a3eb97847a8556e728b698227896d87cc3d59fdd2bf003a26dd",
+        "dedupeKey": null
+      },
+      "trustContext": {
+        "authenticationState": "verified",
+        "authorizationState": "verified",
+        "identityProofingMethod": "mutual_tls_service_identity",
+        "sourceTrustLevel": "high",
+        "signatureState": "verified",
+        "transportIntegrity": "trusted_internal_tls"
+      },
+      "integrationContext": {
+        "inboundAdapter": "api_gateway_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.0"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": true,
+        "idempotencyKey": null,
+        "duplicateCheckRequired": true,
+        "duplicateState": "new",
+        "priorDecisionReuse": "not_possible_without_idempotency_key",
+        "replayWindowHours": 72
+      },
+      "auditRecord": {
+        "eventId": "evt_mutation_missing_idempotency_001",
+        "traceId": "trc_mutation_missing_idempotency_001",
+        "decision": "block",
+        "decisionVersion": "1.4.0",
+        "policyVersion": "1.4.0",
+        "mustPersist": true
+      }
+    }
+  ],
+  "caseCount": 10,
+  "runtimeContract": {
+    "coreExecutionModel": "stateless_deterministic_gate",
+    "designIntent": "Run classification and gate evaluation inline for low-latency decisions while keeping irreversible side effects outside the core gate.",
+    "processingPaths": {
+      "inlineSync": {
+        "purpose": "Interactive decisions in email, chat, workflow prompts, and APIs.",
+        "targetP95DecisionLatencyMs": 150,
+        "targetP99DecisionLatencyMs": 300,
+        "maxPayloadKB": 64,
+        "behaviorOnBudgetExceed": "slow_and_route_for_async_review"
+      },
+      "asyncEscalation": {
+        "purpose": "Large payloads, attachment-heavy events, batch imports, or degraded downstream conditions.",
+        "queueRequired": true,
+        "targetAckMs": 50,
+        "decisionSLOSeconds": 30,
+        "behavior": "persist_event_then_evaluate_without_losing_traceability"
+      }
+    },
+    "scalabilityProfile": {
+      "horizontalScaling": true,
+      "stateHandling": "Core gate remains stateless. State is externalized to audit, identity, and idempotency stores.",
+      "throughputExpectation": {
+        "baselineEventsPerSecondPerNode": 200,
+        "burstEventsPerSecondPerNode": 1000,
+        "note": "Throughput targets assume pre-normalized payloads and externalized persistence."
+      },
+      "backpressurePolicy": [
+        "shed non-critical enrichment before core gate evaluation",
+        "route over-budget or degraded events to async queue",
+        "never bypass gate because of load"
+      ]
+    },
+    "resilienceRequirements": {
+      "failClosedOn": [
+        "high_risk_action_with_missing_identity",
+        "missing_idempotency_on_mutation",
+        "signature_invalid_on_trusted_required_channel"
+      ],
+      "failOpenAllowedOn": [
+        "descriptive_or_educational_content_with_no_action"
+      ],
+      "degradationMode": "Preserve prior verified decision when duplicate is confirmed. Otherwise slow or block rather than guess."
+    }
+  },
+  "securityEnforcement": {
+    "identityTrustModel": {
+      "authenticationStates": [
+        "not_applicable",
+        "partial",
+        "verified",
+        "failed"
+      ],
+      "authorizationStates": [
+        "not_required",
+        "partial",
+        "verified",
+        "failed"
+      ],
+      "trustedIdentityProofingMethods": [
+        "directory_session",
+        "federated_sso",
+        "mutual_tls_service_identity",
+        "known_callback_to_system_of_record",
+        "signed_internal_workflow_event"
+      ]
+    },
+    "requiredTrustChecks": {
+      "highRiskActionsMustVerify": [
+        "actor_identity",
+        "actor_authority",
+        "channel_trust",
+        "signature_or_independent_callback_when_policy_requires"
+      ],
+      "credentialRequestsMustVerify": [
+        "requesting_system_identity",
+        "approved_secret_exchange_path",
+        "transport_integrity"
+      ],
+      "externalFinancialChangesMustVerify": [
+        "independent_system_of_record_confirmation",
+        "second_review_if_policy_requires"
+      ]
+    },
+    "controlHooks": {
+      "authenticationHook": "Adapter validates session, token, certificate, or signed workflow identity before gate evaluation.",
+      "authorizationHook": "Adapter resolves whether the verified actor is permitted to request or approve the action.",
+      "trustValidationHook": "Adapter records signature state, transport integrity, and source trust level into trustContext.",
+      "secretHandlingHook": "Credential or token requests are blocked unless they occur in an approved secret exchange path."
+    }
+  },
+  "interoperabilityContract": {
+    "supportedSourceTypes": [
+      "email",
+      "sms",
+      "workflow_event",
+      "api_request",
+      "article",
+      "chat_message"
+    ],
+    "requiredEventEnvelopeFields": [
+      "eventId",
+      "traceId",
+      "sourceSystem",
+      "adapterType",
+      "receivedAt",
+      "payloadHash",
+      "dedupeKey"
+    ],
+    "requiredDecisionOutputFields": [
+      "decision",
+      "reasonCodes",
+      "explanation",
+      "requiredNextSteps",
+      "traceId",
+      "eventId",
+      "decisionVersion",
+      "policyVersion"
+    ],
+    "adapterResponsibilities": {
+      "normalize": "Convert channel-specific payloads into MFOS envelope and classification-ready content.",
+      "authenticate": "Attach verified identity and authorization results where available.",
+      "mapSideEffects": "Bind MFOS allow/slow/block results to local workflow actions without changing MFOS semantics.",
+      "emitAuditRecord": "Write canonical audit record with traceId, eventId, decision, and reasonCodes."
+    },
+    "reasonCodeMappingContract": {
+      "defaultSeverityBands": {
+        "allow": "info",
+        "slow": "warning",
+        "block": "critical"
+      },
+      "controlMappingExamples": {
+        "SELF_APPROVAL_BLOCKED": [
+          "segregation_of_duties",
+          "approval_control"
+        ],
+        "AUTHENTICATION_FAILED": [
+          "identity_access_control"
+        ],
+        "REPLAY_DETECTED": [
+          "transaction_integrity",
+          "change_control"
+        ],
+        "VERIFICATION_PENDING": [
+          "independent_validation"
+        ]
+      }
+    }
+  },
+  "idempotencyContract": {
+    "mutationPolicy": "Any action that could change money, system state, credentials, identity, routing, or approvals must carry an idempotency key and dedupe key.",
+    "requiredFieldsForMutatingEvents": [
+      "eventId",
+      "dedupeKey",
+      "payloadHash",
+      "occurredAt"
+    ],
+    "duplicateHandling": {
+      "states": [
+        "new",
+        "duplicate_same_payload",
+        "duplicate_conflict",
+        "replay_after_commit"
+      ],
+      "defaultBehavior": {
+        "new": "evaluate_normally",
+        "duplicate_same_payload": "return_prior_decision_without_reexecuting_side_effects",
+        "duplicate_conflict": "block_and_investigate",
+        "replay_after_commit": "block_and_investigate"
+      }
+    },
+    "replayProtection": {
+      "windowHours": 72,
+      "requiresMonotonicEventStore": true,
+      "highRiskMutationBehavior": "block_when_prior_committed_event_reappears_without_new_authorization"
+    }
+  },
+  "deploymentNotes": {
+    "whatChangedFromV1_3": [
+      "Added security and trust context fields to every case.",
+      "Defined inline vs async runtime expectations and latency budgets.",
+      "Added interoperability contract for adapters, audit output, and reason-code mapping.",
+      "Added idempotency and replay contract for mutating events.",
+      "Added cases covering credential exfiltration, verified internal APIs, replayed workflow events, and missing idempotency."
+    ],
+    "compatibility": {
+      "existingCoreFieldsPreserved": true,
+      "newFieldsAreAdditive": true
+    }
+  }
+}
