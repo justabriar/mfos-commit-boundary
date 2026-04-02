@@ -1,5 +1,5 @@
 {
-  "suiteVersion": "1.4.0",
+  "suiteVersion": "1.4.1",
   "suiteName": "mfos_ground_truth_v1_4",
   "artifactType": "mfosGroundTruthSuite",
   "consolidated": true,
@@ -49,7 +49,7 @@
       "ACTION_EXPLICIT_AND_PRESSURE_STRONG",
       "CONSEQUENCE_HIGH_AND_VERIFICATION_WEAK",
       "IRREVERSIBLE_ACTION_WITHOUT_VERIFIED_OWNER",
-      "SELF_APPROVAL_WHEN_SECOND_REVIEW_REQUIRED",
+      "SELF_APPROVAL_BLOCKED_AND_SECOND_REVIEW_REQUIRED",
       "SECRECY_PLUS_HIGH_RISK_ACTION",
       "CREDENTIAL_REQUEST_IN_LOW_TRUST_CONTEXT",
       "AUTHENTICATION_FAILED",
@@ -279,7 +279,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.0"
+        "policyVersion": "1.4.1"
       },
       "processingProfile": {
         "executionPath": "inline_sync",
@@ -301,8 +301,8 @@
         "eventId": "evt_clean_routine_review_001",
         "traceId": "trc_clean_routine_review_001",
         "decision": "allow",
-        "decisionVersion": "1.4.0",
-        "policyVersion": "1.4.0",
+        "decisionVersion": "1.4.1",
+        "policyVersion": "1.4.1",
         "mustPersist": true
       }
     },
@@ -434,7 +434,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.0"
+        "policyVersion": "1.4.1"
       },
       "processingProfile": {
         "executionPath": "async_queue",
@@ -456,8 +456,8 @@
         "eventId": "evt_false_positive_educational_001",
         "traceId": "trc_false_positive_educational_001",
         "decision": "allow",
-        "decisionVersion": "1.4.0",
-        "policyVersion": "1.4.0",
+        "decisionVersion": "1.4.1",
+        "policyVersion": "1.4.1",
         "mustPersist": true
       }
     },
@@ -603,7 +603,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.0"
+        "policyVersion": "1.4.1"
       },
       "processingProfile": {
         "executionPath": "inline_sync",
@@ -625,8 +625,8 @@
         "eventId": "evt_ambiguous_help_request_001",
         "traceId": "trc_ambiguous_help_request_001",
         "decision": "slow",
-        "decisionVersion": "1.4.0",
-        "policyVersion": "1.4.0",
+        "decisionVersion": "1.4.1",
+        "policyVersion": "1.4.1",
         "mustPersist": true
       }
     },
@@ -785,7 +785,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.0"
+        "policyVersion": "1.4.1"
       },
       "processingProfile": {
         "executionPath": "inline_sync",
@@ -807,8 +807,8 @@
         "eventId": "evt_financial_pressure_cashapp_001",
         "traceId": "trc_financial_pressure_cashapp_001",
         "decision": "block",
-        "decisionVersion": "1.4.0",
-        "policyVersion": "1.4.0",
+        "decisionVersion": "1.4.1",
+        "policyVersion": "1.4.1",
         "mustPersist": true
       }
     },
@@ -962,7 +962,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.0"
+        "policyVersion": "1.4.1"
       },
       "processingProfile": {
         "executionPath": "inline_sync",
@@ -984,8 +984,8 @@
         "eventId": "evt_friendly_bank_change_001",
         "traceId": "trc_friendly_bank_change_001",
         "decision": "slow",
-        "decisionVersion": "1.4.0",
-        "policyVersion": "1.4.0",
+        "decisionVersion": "1.4.1",
+        "policyVersion": "1.4.1",
         "mustPersist": true
       }
     },
@@ -1130,7 +1130,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.0"
+        "policyVersion": "1.4.1"
       },
       "processingProfile": {
         "executionPath": "inline_sync",
@@ -1152,8 +1152,8 @@
         "eventId": "evt_ownership_self_approval_001",
         "traceId": "trc_ownership_self_approval_001",
         "decision": "block",
-        "decisionVersion": "1.4.0",
-        "policyVersion": "1.4.0",
+        "decisionVersion": "1.4.1",
+        "policyVersion": "1.4.1",
         "mustPersist": true
       }
     },
@@ -1312,7 +1312,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.0"
+        "policyVersion": "1.4.1"
       },
       "processingProfile": {
         "executionPath": "inline_sync",
@@ -1334,8 +1334,8 @@
         "eventId": "evt_credential_request_low_trust_001",
         "traceId": "trc_credential_request_low_trust_001",
         "decision": "block",
-        "decisionVersion": "1.4.0",
-        "policyVersion": "1.4.0",
+        "decisionVersion": "1.4.1",
+        "policyVersion": "1.4.1",
         "mustPersist": true
       }
     },
@@ -1467,7 +1467,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.0"
+        "policyVersion": "1.4.1"
       },
       "processingProfile": {
         "executionPath": "inline_sync",
@@ -1489,8 +1489,8 @@
         "eventId": "evt_verified_internal_api_change_001",
         "traceId": "trc_verified_internal_api_change_001",
         "decision": "allow",
-        "decisionVersion": "1.4.0",
-        "policyVersion": "1.4.0",
+        "decisionVersion": "1.4.1",
+        "policyVersion": "1.4.1",
         "mustPersist": true
       }
     },
@@ -1631,7 +1631,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.0"
+        "policyVersion": "1.4.1"
       },
       "processingProfile": {
         "executionPath": "inline_sync",
@@ -1653,8 +1653,8 @@
         "eventId": "evt_duplicate_payout_replay_001",
         "traceId": "trc_duplicate_payout_replay_001",
         "decision": "block",
-        "decisionVersion": "1.4.0",
-        "policyVersion": "1.4.0",
+        "decisionVersion": "1.4.1",
+        "policyVersion": "1.4.1",
         "mustPersist": true
       }
     },
@@ -1795,7 +1795,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.0"
+        "policyVersion": "1.4.1"
       },
       "processingProfile": {
         "executionPath": "inline_sync",
@@ -1817,8 +1817,8 @@
         "eventId": "evt_mutation_missing_idempotency_001",
         "traceId": "trc_mutation_missing_idempotency_001",
         "decision": "block",
-        "decisionVersion": "1.4.0",
-        "policyVersion": "1.4.0",
+        "decisionVersion": "1.4.1",
+        "policyVersion": "1.4.1",
         "mustPersist": true
       }
     }
@@ -2007,7 +2007,8 @@
       "Defined inline vs async runtime expectations and latency budgets.",
       "Added interoperability contract for adapters, audit output, and reason-code mapping.",
       "Added idempotency and replay contract for mutating events.",
-      "Added cases covering credential exfiltration, verified internal APIs, replayed workflow events, and missing idempotency."
+      "Added cases covering credential exfiltration, verified internal APIs, replayed workflow events, and missing idempotency.",
+      "Normalized self-approval block rule from SELF_APPROVAL_WHEN_SECOND_REVIEW_REQUIRED to SELF_APPROVAL_BLOCKED_AND_SECOND_REVIEW_REQUIRED so strict token matching works without inferred mapping."
     ],
     "compatibility": {
       "existingCoreFieldsPreserved": true,
