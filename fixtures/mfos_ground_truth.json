@@ -1,9 +1,9 @@
 {
-  "suiteVersion": "1.4.1",
-  "suiteName": "mfos_ground_truth_v1_4",
+  "suiteVersion": "1.4.2",
+  "suiteName": "mfos_ground_truth_v1_4_2",
   "artifactType": "mfosGroundTruthSuite",
   "consolidated": true,
-  "description": "Refined MFOS ground-truth suite for commit-boundary evaluation. This version preserves mechanical gate logic while adding security enforcement hooks, runtime and scalability expectations, interoperability contracts, and idempotency/replay controls needed for enterprise middleware deployment.",
+  "description": "Refined MFOS ground-truth suite for commit-boundary evaluation. This version preserves mechanical gate logic while making ownership binding, owner acknowledgement, and dual-control requirements first-class enforcement signals for high-consequence execution in enterprise, aviation, and clinical-style workflows.",
   "verificationTargets": [
     "classification.pressureProfile",
     "classification.actionIntent",
@@ -19,7 +19,10 @@
     "integrationContext",
     "processingProfile",
     "idempotencyProfile",
-    "auditRecord"
+    "auditRecord",
+    "ownershipCommit",
+    "ownershipEnforcementContract",
+    "uiDecisionContract"
   ],
   "decisionPriority": [
     "block",
@@ -30,7 +33,9 @@
     "allow": [
       "ACTION_NONE_AND_CONSEQUENCE_LOW",
       "PRESSURE_NONE_OR_MILD",
-      "OWNERSHIP_NOT_REQUIRED_OR_VERIFIED"
+      "OWNERSHIP_NOT_REQUIRED_OR_VERIFIED",
+      "OWNERSHIP_REQUIRED_IMPLIES_COMMIT_OWNER_VERIFIED",
+      "OWNER_ACKNOWLEDGEMENT_PRESENT_WHEN_REQUIRED"
     ],
     "slow": [
       "ACTION_IMPLIED",
@@ -43,7 +48,10 @@
       "AUTHENTICATION_PARTIAL",
       "TRUST_CONTEXT_LOW",
       "SIGNATURE_MISSING",
-      "TRACE_MISSING"
+      "TRACE_MISSING",
+      "OWNER_DECLARED_BUT_ACK_PENDING",
+      "SECOND_OWNER_PENDING",
+      "COMMIT_BOUNDARY_HOLD"
     ],
     "block": [
       "ACTION_EXPLICIT_AND_PRESSURE_STRONG",
@@ -57,7 +65,12 @@
       "SIGNATURE_INVALID",
       "REPLAY_DETECTED",
       "IDEMPOTENCY_KEY_MISSING",
-      "TRANSPORT_UNTRUSTED"
+      "TRANSPORT_UNTRUSTED",
+      "MISSING_OWNER_AT_COMMIT_BOUNDARY",
+      "OWNER_ACKNOWLEDGEMENT_REQUIRED",
+      "UNAUTHORIZED_OWNER_ROLE",
+      "SECOND_OWNER_REQUIRED_BUT_MISSING",
+      "OVERRIDE_WITHOUT_REBINDING"
     ]
   },
   "reasonCodeCatalog": {
@@ -93,7 +106,17 @@
     "EVENT_DUPLICATE": "The event matches a previously received event and should not trigger fresh side effects.",
     "REPLAY_DETECTED": "A previously committed or processed event reappeared outside acceptable retry semantics.",
     "IDEMPOTENCY_KEY_MISSING": "A mutating action lacks the idempotency key required for safe distributed processing.",
-    "TRACE_MISSING": "The event cannot be reliably traced across systems because required identifiers are absent."
+    "TRACE_MISSING": "The event cannot be reliably traced across systems because required identifiers are absent.",
+    "OWNERSHIP_REQUIRED_IMPLIES_COMMIT_OWNER_VERIFIED": "When ownership is required, the action may only proceed if a named owner is explicitly bound and verified at the commit boundary.",
+    "OWNER_ACKNOWLEDGEMENT_PRESENT_WHEN_REQUIRED": "The bound owner has explicitly acknowledged responsibility for the action before execution.",
+    "OWNER_DECLARED_BUT_ACK_PENDING": "A primary owner is named, but acknowledgement has not yet been completed where policy requires it.",
+    "SECOND_OWNER_PENDING": "Dual-control workflow is active and the second required owner has not yet completed review or acknowledgement.",
+    "COMMIT_BOUNDARY_HOLD": "The system has reached the point where execution would change reality, but commit-boundary requirements are not yet satisfied.",
+    "MISSING_OWNER_AT_COMMIT_BOUNDARY": "Execution reached the commit boundary without a named accountable owner bound to the action.",
+    "OWNER_ACKNOWLEDGEMENT_REQUIRED": "A required owner has not explicitly accepted responsibility before execution.",
+    "UNAUTHORIZED_OWNER_ROLE": "The proposed owner is verified but does not hold the required role or authority class for this action.",
+    "SECOND_OWNER_REQUIRED_BUT_MISSING": "Policy requires a separate second owner or reviewer before execution, and that second owner is not yet bound.",
+    "OVERRIDE_WITHOUT_REBINDING": "An override attempt was made without creating a fresh ownership binding and audit event for the new decision."
   },
   "testMatrix": {
     "pressureStrength": [
@@ -152,6 +175,30 @@
       "duplicate_same_payload",
       "duplicate_conflict",
       "replay_after_commit"
+    ],
+    "ownerBindingState": [
+      "not_required",
+      "missing",
+      "declared_unverified",
+      "bound_verified",
+      "bound_primary_pending_second_review"
+    ],
+    "ownerAcknowledgementState": [
+      "not_required",
+      "pending",
+      "present"
+    ],
+    "ownerAuthorityClass": [
+      "not_applicable",
+      "human_operator",
+      "service_account",
+      "clinical_licensed",
+      "flight_authority"
+    ],
+    "dualControlState": [
+      "not_required",
+      "required_pending",
+      "required_satisfied"
     ]
   },
   "cases": [
@@ -219,7 +266,15 @@
         "verified": false,
         "delegationAllowed": false,
         "selfApprovalBlocked": false,
-        "secondReviewRequired": false
+        "secondReviewRequired": false,
+        "authorized": false,
+        "acknowledged": false,
+        "commitRole": null,
+        "ownershipMode": "none",
+        "bindingState": "not_required",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": null
       },
       "thresholdEvaluation": {
         "pressureScore": 0,
@@ -240,7 +295,16 @@
           "CONSEQUENCE_LOW"
         ],
         "explanation": "Routine review message with no directional risk, no tempo compression, and no meaningful consequence exposure.",
-        "requiredNextSteps": []
+        "requiredNextSteps": [],
+        "ownerBinding": {
+          "bindingState": "not_required",
+          "actorId": null,
+          "actorType": "none",
+          "commitRole": null,
+          "authorityClass": null
+        },
+        "ownerAcknowledgement": false,
+        "commitState": "eligible"
       },
       "groundTruth": {
         "expectedDecision": "allow",
@@ -279,7 +343,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.1"
+        "policyVersion": "1.4.2"
       },
       "processingProfile": {
         "executionPath": "inline_sync",
@@ -301,9 +365,19 @@
         "eventId": "evt_clean_routine_review_001",
         "traceId": "trc_clean_routine_review_001",
         "decision": "allow",
-        "decisionVersion": "1.4.1",
-        "policyVersion": "1.4.1",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
         "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": false,
+        "ownerRequiredAtCommit": false,
+        "ownerBound": false,
+        "ownerAcknowledged": false,
+        "ownerAuthorized": false,
+        "secondOwnerRequired": false,
+        "secondOwnerBound": false,
+        "executionEligible": true
       }
     },
     {
@@ -374,7 +448,15 @@
         "verified": false,
         "delegationAllowed": false,
         "selfApprovalBlocked": false,
-        "secondReviewRequired": false
+        "secondReviewRequired": false,
+        "authorized": false,
+        "acknowledged": false,
+        "commitRole": null,
+        "ownershipMode": "none",
+        "bindingState": "not_required",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": null
       },
       "thresholdEvaluation": {
         "pressureScore": 1,
@@ -396,7 +478,16 @@
           "CONSEQUENCE_LOW"
         ],
         "explanation": "Pressure language is present only as description. No action is being pushed across the boundary.",
-        "requiredNextSteps": []
+        "requiredNextSteps": [],
+        "ownerBinding": {
+          "bindingState": "not_required",
+          "actorId": null,
+          "actorType": "none",
+          "commitRole": null,
+          "authorityClass": null
+        },
+        "ownerAcknowledgement": false,
+        "commitState": "eligible"
       },
       "groundTruth": {
         "expectedDecision": "allow",
@@ -434,7 +525,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.1"
+        "policyVersion": "1.4.2"
       },
       "processingProfile": {
         "executionPath": "async_queue",
@@ -456,9 +547,19 @@
         "eventId": "evt_false_positive_educational_001",
         "traceId": "trc_false_positive_educational_001",
         "decision": "allow",
-        "decisionVersion": "1.4.1",
-        "policyVersion": "1.4.1",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
         "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": false,
+        "ownerRequiredAtCommit": false,
+        "ownerBound": false,
+        "ownerAcknowledged": false,
+        "ownerAuthorized": false,
+        "secondOwnerRequired": false,
+        "secondOwnerBound": false,
+        "executionEligible": true
       }
     },
     {
@@ -534,7 +635,15 @@
         "verified": false,
         "delegationAllowed": false,
         "selfApprovalBlocked": false,
-        "secondReviewRequired": false
+        "secondReviewRequired": false,
+        "authorized": false,
+        "acknowledged": false,
+        "commitRole": "human_operator",
+        "ownershipMode": "single_owner",
+        "bindingState": "missing",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": "human_operator"
       },
       "thresholdEvaluation": {
         "pressureScore": 1,
@@ -557,14 +666,25 @@
           "ACTION_IMPLIED",
           "AMBIGUITY_HIGH",
           "OWNERSHIP_MISSING",
-          "IDENTITY_UNVERIFIED"
+          "IDENTITY_UNVERIFIED",
+          "MISSING_OWNER_AT_COMMIT_BOUNDARY",
+          "COMMIT_BOUNDARY_HOLD"
         ],
-        "explanation": "Directional pressure is present, but the actual ask remains unclear and verification is incomplete.",
+        "explanation": "Directional pressure is present, but the actual ask remains unclear and verification is incomplete. The request cannot cross the commit boundary without a named owner.",
         "requiredNextSteps": [
           "clarify the requested action",
           "verify sender identity through an independent channel",
           "establish explicit ownership before any action"
-        ]
+        ],
+        "ownerBinding": {
+          "bindingState": "missing",
+          "actorId": "local_user",
+          "actorType": "user",
+          "commitRole": "human_operator",
+          "authorityClass": "human_operator"
+        },
+        "ownerAcknowledgement": false,
+        "commitState": "hold"
       },
       "groundTruth": {
         "expectedDecision": "slow",
@@ -603,7 +723,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.1"
+        "policyVersion": "1.4.2"
       },
       "processingProfile": {
         "executionPath": "inline_sync",
@@ -625,9 +745,19 @@
         "eventId": "evt_ambiguous_help_request_001",
         "traceId": "trc_ambiguous_help_request_001",
         "decision": "slow",
-        "decisionVersion": "1.4.1",
-        "policyVersion": "1.4.1",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
         "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": false,
+        "ownerAcknowledged": false,
+        "ownerAuthorized": false,
+        "secondOwnerRequired": false,
+        "secondOwnerBound": false,
+        "executionEligible": false
       }
     },
     {
@@ -711,7 +841,15 @@
         "verified": false,
         "delegationAllowed": false,
         "selfApprovalBlocked": false,
-        "secondReviewRequired": false
+        "secondReviewRequired": false,
+        "authorized": false,
+        "acknowledged": false,
+        "commitRole": "human_operator",
+        "ownershipMode": "single_owner",
+        "bindingState": "missing",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": "human_operator"
       },
       "thresholdEvaluation": {
         "pressureScore": 3,
@@ -738,14 +876,24 @@
           "CONSEQUENCE_HIGH",
           "OWNERSHIP_MISSING",
           "IDENTITY_UNVERIFIED",
-          "IRREVERSIBLE_ACTION"
+          "IRREVERSIBLE_ACTION",
+          "MISSING_OWNER_AT_COMMIT_BOUNDARY"
         ],
-        "explanation": "Explicit high-risk money movement is requested under strong pressure with no verified sender and no explicit owner carrying the action.",
+        "explanation": "Explicit high-risk money movement is requested under strong pressure with no verified sender and no explicit owner carrying the action. The request also fails commit-boundary ownership.",
         "requiredNextSteps": [
           "verify sender identity through an independent channel",
           "do not move money until verification completes",
           "establish explicit ownership before any action"
-        ]
+        ],
+        "ownerBinding": {
+          "bindingState": "missing",
+          "actorId": "local_user",
+          "actorType": "user",
+          "commitRole": "human_operator",
+          "authorityClass": "human_operator"
+        },
+        "ownerAcknowledgement": false,
+        "commitState": "hold"
       },
       "groundTruth": {
         "expectedDecision": "block",
@@ -785,7 +933,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.1"
+        "policyVersion": "1.4.2"
       },
       "processingProfile": {
         "executionPath": "inline_sync",
@@ -807,9 +955,19 @@
         "eventId": "evt_financial_pressure_cashapp_001",
         "traceId": "trc_financial_pressure_cashapp_001",
         "decision": "block",
-        "decisionVersion": "1.4.1",
-        "policyVersion": "1.4.1",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
         "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": false,
+        "ownerAcknowledged": false,
+        "ownerAuthorized": false,
+        "secondOwnerRequired": false,
+        "secondOwnerBound": false,
+        "executionEligible": false
       }
     },
     {
@@ -891,7 +1049,15 @@
         "verified": true,
         "delegationAllowed": false,
         "selfApprovalBlocked": false,
-        "secondReviewRequired": true
+        "secondReviewRequired": true,
+        "authorized": true,
+        "acknowledged": true,
+        "commitRole": "human_operator",
+        "ownershipMode": "dual_control",
+        "bindingState": "bound_primary_pending_second_review",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": "human_operator"
       },
       "thresholdEvaluation": {
         "pressureScore": 2,
@@ -915,14 +1081,25 @@
           "ACTION_EXPLICIT",
           "CONSEQUENCE_HIGH",
           "VERIFICATION_PENDING",
-          "SECOND_REVIEW_REQUIRED"
+          "SECOND_REVIEW_REQUIRED",
+          "SECOND_OWNER_REQUIRED_BUT_MISSING",
+          "COMMIT_BOUNDARY_HOLD"
         ],
-        "explanation": "The tone is warm, but the action changes a payout destination and cannot proceed until independent verification and required review complete.",
+        "explanation": "The tone is warm, but the action changes a payout destination and cannot proceed until independent verification and required review complete. A primary owner exists, but the second required owner is not yet bound.",
         "requiredNextSteps": [
           "verify bank-change request through a trusted system of record or independent callback",
           "route to required reviewer",
           "separate message tone from payment-routing risk"
-        ]
+        ],
+        "ownerBinding": {
+          "bindingState": "bound_primary_pending_second_review",
+          "actorId": "ap_clerk_01",
+          "actorType": "operator",
+          "commitRole": "human_operator",
+          "authorityClass": "human_operator"
+        },
+        "ownerAcknowledgement": true,
+        "commitState": "hold"
       },
       "groundTruth": {
         "expectedDecision": "slow",
@@ -962,7 +1139,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.1"
+        "policyVersion": "1.4.2"
       },
       "processingProfile": {
         "executionPath": "inline_sync",
@@ -984,9 +1161,19 @@
         "eventId": "evt_friendly_bank_change_001",
         "traceId": "trc_friendly_bank_change_001",
         "decision": "slow",
-        "decisionVersion": "1.4.1",
-        "policyVersion": "1.4.1",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
         "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": true,
+        "ownerAcknowledged": true,
+        "ownerAuthorized": true,
+        "secondOwnerRequired": true,
+        "secondOwnerBound": false,
+        "executionEligible": false
       }
     },
     {
@@ -1061,7 +1248,15 @@
         "verified": true,
         "delegationAllowed": false,
         "selfApprovalBlocked": true,
-        "secondReviewRequired": true
+        "secondReviewRequired": true,
+        "authorized": true,
+        "acknowledged": true,
+        "commitRole": "human_operator",
+        "ownershipMode": "dual_control",
+        "bindingState": "bound_but_policy_blocked",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": "human_operator"
       },
       "thresholdEvaluation": {
         "pressureScore": 0,
@@ -1084,14 +1279,24 @@
           "SELF_APPROVAL_BLOCKED",
           "SECOND_REVIEW_REQUIRED",
           "CONSEQUENCE_HIGH",
-          "AUTHORITY_FORMAL"
+          "AUTHORITY_FORMAL",
+          "SECOND_OWNER_REQUIRED_BUT_MISSING"
         ],
-        "explanation": "The actor is present and verified, but they cannot approve their own high-risk action where independent review is required.",
+        "explanation": "The actor is present and verified, but they cannot approve their own high-risk action where independent review is required. Ownership alone is not enough because the second independent owner is missing.",
         "requiredNextSteps": [
           "route to an independent reviewer",
           "record initiator and reviewer separately",
           "prevent self-approval bypass at execution time"
-        ]
+        ],
+        "ownerBinding": {
+          "bindingState": "bound_but_policy_blocked",
+          "actorId": "op_123",
+          "actorType": "operator",
+          "commitRole": "human_operator",
+          "authorityClass": "human_operator"
+        },
+        "ownerAcknowledgement": true,
+        "commitState": "hold"
       },
       "groundTruth": {
         "expectedDecision": "block",
@@ -1130,7 +1335,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.1"
+        "policyVersion": "1.4.2"
       },
       "processingProfile": {
         "executionPath": "inline_sync",
@@ -1152,9 +1357,19 @@
         "eventId": "evt_ownership_self_approval_001",
         "traceId": "trc_ownership_self_approval_001",
         "decision": "block",
-        "decisionVersion": "1.4.1",
-        "policyVersion": "1.4.1",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
         "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": true,
+        "ownerAcknowledged": true,
+        "ownerAuthorized": true,
+        "secondOwnerRequired": true,
+        "secondOwnerBound": false,
+        "executionEligible": false
       }
     },
     {
@@ -1241,7 +1456,15 @@
         "verified": false,
         "delegationAllowed": false,
         "selfApprovalBlocked": false,
-        "secondReviewRequired": false
+        "secondReviewRequired": false,
+        "authorized": false,
+        "acknowledged": false,
+        "commitRole": "human_operator",
+        "ownershipMode": "single_owner",
+        "bindingState": "missing",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": "human_operator"
       },
       "thresholdEvaluation": {
         "pressureScore": 3,
@@ -1267,14 +1490,24 @@
           "CONSEQUENCE_HIGH",
           "AUTHENTICATION_FAILED",
           "TRUST_CONTEXT_LOW",
-          "TRANSPORT_UNTRUSTED"
+          "TRANSPORT_UNTRUSTED",
+          "MISSING_OWNER_AT_COMMIT_BOUNDARY"
         ],
         "explanation": "Credential disclosure is requested through an untrusted external channel with no approved secret exchange path and no verified requester.",
         "requiredNextSteps": [
           "do not send credentials or MFA codes",
           "verify with the security team through an approved internal channel",
           "restrict credential exchange to approved secret reset workflow"
-        ]
+        ],
+        "ownerBinding": {
+          "bindingState": "missing",
+          "actorId": "local_user",
+          "actorType": "user",
+          "commitRole": "human_operator",
+          "authorityClass": "human_operator"
+        },
+        "ownerAcknowledgement": false,
+        "commitState": "hold"
       },
       "groundTruth": {
         "expectedDecision": "block",
@@ -1312,7 +1545,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.1"
+        "policyVersion": "1.4.2"
       },
       "processingProfile": {
         "executionPath": "inline_sync",
@@ -1334,9 +1567,19 @@
         "eventId": "evt_credential_request_low_trust_001",
         "traceId": "trc_credential_request_low_trust_001",
         "decision": "block",
-        "decisionVersion": "1.4.1",
-        "policyVersion": "1.4.1",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
         "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": false,
+        "ownerAcknowledged": false,
+        "ownerAuthorized": false,
+        "secondOwnerRequired": false,
+        "secondOwnerBound": false,
+        "executionEligible": false
       }
     },
     {
@@ -1409,7 +1652,15 @@
         "verified": true,
         "delegationAllowed": false,
         "selfApprovalBlocked": false,
-        "secondReviewRequired": false
+        "secondReviewRequired": false,
+        "authorized": true,
+        "acknowledged": true,
+        "commitRole": "authorized_service_owner",
+        "ownershipMode": "single_owner",
+        "bindingState": "bound_verified",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": "service_account"
       },
       "thresholdEvaluation": {
         "pressureScore": 0,
@@ -1426,10 +1677,20 @@
       "mfosGate": {
         "decision": "allow",
         "reasonCodes": [
-          "ACTION_EXPLICIT"
+          "ACTION_EXPLICIT",
+          "OWNERSHIP_REQUIRED_IMPLIES_COMMIT_OWNER_VERIFIED"
         ],
-        "explanation": "The request is explicit but low-risk, reversible, fully authenticated, authorized, traceable, and permitted under the adapter contract.",
-        "requiredNextSteps": []
+        "explanation": "The request is explicit but low-risk, reversible, fully authenticated, authorized, traceable, and permitted under the adapter contract. A named verified service owner is bound to the change.",
+        "requiredNextSteps": [],
+        "ownerBinding": {
+          "bindingState": "bound_verified",
+          "actorId": "svc_customer_pref",
+          "actorType": "service_account",
+          "commitRole": "authorized_service_owner",
+          "authorityClass": "service_account"
+        },
+        "ownerAcknowledgement": true,
+        "commitState": "eligible"
       },
       "groundTruth": {
         "expectedDecision": "allow",
@@ -1467,7 +1728,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.1"
+        "policyVersion": "1.4.2"
       },
       "processingProfile": {
         "executionPath": "inline_sync",
@@ -1489,9 +1750,19 @@
         "eventId": "evt_verified_internal_api_change_001",
         "traceId": "trc_verified_internal_api_change_001",
         "decision": "allow",
-        "decisionVersion": "1.4.1",
-        "policyVersion": "1.4.1",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
         "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": true,
+        "ownerAcknowledged": true,
+        "ownerAuthorized": true,
+        "secondOwnerRequired": false,
+        "secondOwnerBound": false,
+        "executionEligible": true
       }
     },
     {
@@ -1564,7 +1835,15 @@
         "verified": true,
         "delegationAllowed": false,
         "selfApprovalBlocked": false,
-        "secondReviewRequired": false
+        "secondReviewRequired": false,
+        "authorized": true,
+        "acknowledged": true,
+        "commitRole": "human_operator",
+        "ownershipMode": "single_owner",
+        "bindingState": "bound_verified",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": "human_operator"
       },
       "thresholdEvaluation": {
         "pressureScore": 0,
@@ -1593,7 +1872,16 @@
           "return prior decision record",
           "suppress payout re-execution",
           "investigate replay source"
-        ]
+        ],
+        "ownerBinding": {
+          "bindingState": "bound_verified",
+          "actorId": "op_991",
+          "actorType": "operator",
+          "commitRole": "human_operator",
+          "authorityClass": "human_operator"
+        },
+        "ownerAcknowledgement": true,
+        "commitState": "hold"
       },
       "groundTruth": {
         "expectedDecision": "block",
@@ -1631,7 +1919,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.1"
+        "policyVersion": "1.4.2"
       },
       "processingProfile": {
         "executionPath": "inline_sync",
@@ -1653,9 +1941,19 @@
         "eventId": "evt_duplicate_payout_replay_001",
         "traceId": "trc_duplicate_payout_replay_001",
         "decision": "block",
-        "decisionVersion": "1.4.1",
-        "policyVersion": "1.4.1",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
         "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": true,
+        "ownerAcknowledged": true,
+        "ownerAuthorized": true,
+        "secondOwnerRequired": false,
+        "secondOwnerBound": false,
+        "executionEligible": false
       }
     },
     {
@@ -1729,7 +2027,15 @@
         "verified": true,
         "delegationAllowed": false,
         "selfApprovalBlocked": false,
-        "secondReviewRequired": true
+        "secondReviewRequired": true,
+        "authorized": true,
+        "acknowledged": true,
+        "commitRole": "authorized_service_owner",
+        "ownershipMode": "dual_control",
+        "bindingState": "bound_primary_pending_second_review",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": "service_account"
       },
       "thresholdEvaluation": {
         "pressureScore": 0,
@@ -1751,14 +2057,24 @@
         "reasonCodes": [
           "IDEMPOTENCY_KEY_MISSING",
           "CONSEQUENCE_HIGH",
-          "SECOND_REVIEW_REQUIRED"
+          "SECOND_REVIEW_REQUIRED",
+          "SECOND_OWNER_REQUIRED_BUT_MISSING"
         ],
-        "explanation": "The request is authenticated, but a high-risk mutation cannot proceed without idempotency controls and the required review path.",
+        "explanation": "The request is authenticated, but a high-risk mutation cannot proceed without idempotency controls and the required review path. Even with a primary owner, the action cannot cross the boundary without the second required owner and replay-safe controls.",
         "requiredNextSteps": [
           "resubmit with valid idempotency key and dedupe metadata",
           "route through independent verification workflow",
           "do not mutate payment routing until controls are present"
-        ]
+        ],
+        "ownerBinding": {
+          "bindingState": "bound_primary_pending_second_review",
+          "actorId": "svc_vendor_ops",
+          "actorType": "service_account",
+          "commitRole": "authorized_service_owner",
+          "authorityClass": "service_account"
+        },
+        "ownerAcknowledgement": true,
+        "commitState": "hold"
       },
       "groundTruth": {
         "expectedDecision": "block",
@@ -1795,7 +2111,7 @@
           "audit_log"
         ],
         "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
-        "policyVersion": "1.4.1"
+        "policyVersion": "1.4.2"
       },
       "processingProfile": {
         "executionPath": "inline_sync",
@@ -1817,13 +2133,422 @@
         "eventId": "evt_mutation_missing_idempotency_001",
         "traceId": "trc_mutation_missing_idempotency_001",
         "decision": "block",
-        "decisionVersion": "1.4.1",
-        "policyVersion": "1.4.1",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
         "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": true,
+        "ownerAcknowledged": true,
+        "ownerAuthorized": true,
+        "secondOwnerRequired": true,
+        "secondOwnerBound": false,
+        "executionEligible": false
+      }
+    },
+    {
+      "caseId": "aviation_route_change_owner_missing_001",
+      "title": "Aviation route-change recommendation reaches the boundary without captain ownership and required clearance chain",
+      "packetType": "ownership_enforcement",
+      "input": {
+        "sourceType": "workflow_event",
+        "channel": "decision_prompt",
+        "content": "AI weather avoidance system recommends a 20 NM south reroute around convective activity. Commit amended route now.",
+        "contextNotes": [
+          "safety-significant route change",
+          "captain not yet bound as owner",
+          "dispatch concurrence pending",
+          "ATC clearance path still open"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": true,
+          "types": [
+            "urgency"
+          ],
+          "strength": "moderate",
+          "evidence": [
+            "now",
+            "convective activity"
+          ]
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "explicit",
+          "targetAction": "approve",
+          "actionCount": 1,
+          "deferredRisk": false,
+          "evidence": [
+            "Commit amended route now"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "high",
+          "domains": [
+            "safety",
+            "operations"
+          ],
+          "recoveryDifficulty": "hard",
+          "irreversible": false,
+          "exposureLevel": "significant"
+        },
+        "authorityProfile": {
+          "present": true,
+          "type": "formal",
+          "strength": "moderate",
+          "evidence": [
+            "operational route-change recommendation"
+          ]
+        },
+        "tempoProfile": {
+          "urgencyLevel": "explicit",
+          "timeConstraint": "soft",
+          "cooldownRecommended": true,
+          "evidence": [
+            "now"
+          ]
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "clear",
+          "verificationState": "verified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "pilot",
+        "actorId": "captain_204",
+        "explicit": false,
+        "verified": true,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": true,
+        "authorized": false,
+        "acknowledged": false,
+        "commitRole": "flight_captain",
+        "ownershipMode": "dual_control",
+        "bindingState": "missing",
+        "secondActorId": "dispatcher_77",
+        "secondActorVerified": false,
+        "authorityClass": "flight_authority"
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 2,
+        "actionScore": 3,
+        "consequenceScore": 3,
+        "authorityScore": 2,
+        "tempoScore": 1,
+        "ownershipScore": 0,
+        "mechanicalTriggers": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "MISSING_OWNER_AT_COMMIT_BOUNDARY",
+          "SECOND_OWNER_REQUIRED_BUT_MISSING",
+          "COMMIT_BOUNDARY_HOLD"
+        ]
+      },
+      "mfosGate": {
+        "decision": "slow",
+        "reasonCodes": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "MISSING_OWNER_AT_COMMIT_BOUNDARY",
+          "SECOND_OWNER_REQUIRED_BUT_MISSING",
+          "COMMIT_BOUNDARY_HOLD"
+        ],
+        "explanation": "The reroute recommendation is legitimate, but it cannot cross the boundary until the captain is explicitly bound and the required operational clearance chain is satisfied.",
+        "requiredNextSteps": [
+          "bind captain as explicit owner",
+          "record dispatcher concurrence if required by policy",
+          "obtain required operational clearance before execution"
+        ],
+        "ownerBinding": {
+          "bindingState": "missing",
+          "actorId": "captain_204",
+          "actorType": "pilot",
+          "commitRole": "flight_captain",
+          "authorityClass": "flight_authority"
+        },
+        "ownerAcknowledgement": false,
+        "commitState": "hold"
+      },
+      "groundTruth": {
+        "expectedDecision": "slow",
+        "mustIncludeReasonCodes": [
+          "MISSING_OWNER_AT_COMMIT_BOUNDARY",
+          "SECOND_OWNER_REQUIRED_BUT_MISSING"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_aviation_route_change_owner_missing_001",
+        "traceId": "trc_aviation_route_change_owner_missing_001",
+        "sourceSystem": "flight_ops",
+        "adapterType": "flight_decision_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_aviation_route_change_owner_missing_001",
+        "payloadHash": "47b5a5f13b8bc1df5b421cb1d71afe72e3fa1b3ca4f7334e1e7c0ce2aa5ae700",
+        "dedupeKey": "flight_ops:aviation_route_change_owner_missing_001"
+      },
+      "trustContext": {
+        "authenticationState": "verified",
+        "authorizationState": "verified",
+        "identityProofingMethod": "signed_internal_workflow_event",
+        "sourceTrustLevel": "high",
+        "signatureState": "verified",
+        "transportIntegrity": "trusted_internal_tls"
+      },
+      "integrationContext": {
+        "inboundAdapter": "flight_decision_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local flight workflow without changing MFOS semantics",
+        "policyVersion": "1.4.2"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": true,
+        "idempotencyKey": "idem_aviation_route_change_owner_missing_001",
+        "duplicateCheckRequired": true,
+        "duplicateState": "new",
+        "priorDecisionReuse": "return_cached_decision_if_duplicate",
+        "replayWindowHours": 24
+      },
+      "auditRecord": {
+        "eventId": "evt_aviation_route_change_owner_missing_001",
+        "traceId": "trc_aviation_route_change_owner_missing_001",
+        "decision": "slow",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
+        "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": false,
+        "ownerAcknowledged": false,
+        "ownerAuthorized": false,
+        "secondOwnerRequired": true,
+        "secondOwnerBound": false,
+        "executionEligible": false
+      }
+    },
+    {
+      "caseId": "medical_medication_adjustment_ack_missing_001",
+      "title": "Clinical medication recommendation cannot execute until a licensed clinician owns and acknowledges it",
+      "packetType": "ownership_enforcement",
+      "input": {
+        "sourceType": "workflow_event",
+        "channel": "decision_prompt",
+        "content": "AI dosing assistant recommends increasing insulin infusion from 2 to 4 units/hour due to rising glucose trend. Apply now.",
+        "contextNotes": [
+          "direct patient-care consequence",
+          "licensed clinician not yet acknowledged",
+          "high-consequence medication adjustment"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": true,
+          "types": [
+            "urgency"
+          ],
+          "strength": "moderate",
+          "evidence": [
+            "Apply now",
+            "rising glucose trend"
+          ]
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "explicit",
+          "targetAction": "approve",
+          "actionCount": 1,
+          "deferredRisk": false,
+          "evidence": [
+            "Apply now"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "high",
+          "domains": [
+            "clinical",
+            "safety"
+          ],
+          "recoveryDifficulty": "hard",
+          "irreversible": false,
+          "exposureLevel": "significant"
+        },
+        "authorityProfile": {
+          "present": true,
+          "type": "formal",
+          "strength": "moderate",
+          "evidence": [
+            "clinical dosing recommendation"
+          ]
+        },
+        "tempoProfile": {
+          "urgencyLevel": "explicit",
+          "timeConstraint": "soft",
+          "cooldownRecommended": true,
+          "evidence": [
+            "Apply now"
+          ]
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "clear",
+          "verificationState": "verified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "clinician",
+        "actorId": "rn_1127",
+        "explicit": true,
+        "verified": true,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": false,
+        "authorized": true,
+        "acknowledged": false,
+        "commitRole": "licensed_clinician",
+        "ownershipMode": "single_owner",
+        "bindingState": "bound_verified",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": "clinical_licensed"
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 2,
+        "actionScore": 3,
+        "consequenceScore": 3,
+        "authorityScore": 2,
+        "tempoScore": 1,
+        "ownershipScore": 1,
+        "mechanicalTriggers": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "OWNER_ACKNOWLEDGEMENT_REQUIRED",
+          "COMMIT_BOUNDARY_HOLD"
+        ]
+      },
+      "mfosGate": {
+        "decision": "slow",
+        "reasonCodes": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "OWNER_ACKNOWLEDGEMENT_REQUIRED",
+          "COMMIT_BOUNDARY_HOLD"
+        ],
+        "explanation": "A clinician is identified, but the medication change cannot cross the boundary until that licensed owner explicitly acknowledges responsibility for execution.",
+        "requiredNextSteps": [
+          "capture clinician acknowledgement",
+          "record owner identity in the order path",
+          "then permit execution through the approved clinical workflow"
+        ],
+        "ownerBinding": {
+          "bindingState": "bound_verified",
+          "actorId": "rn_1127",
+          "actorType": "clinician",
+          "commitRole": "licensed_clinician",
+          "authorityClass": "clinical_licensed"
+        },
+        "ownerAcknowledgement": false,
+        "commitState": "hold"
+      },
+      "groundTruth": {
+        "expectedDecision": "slow",
+        "mustIncludeReasonCodes": [
+          "OWNER_ACKNOWLEDGEMENT_REQUIRED",
+          "COMMIT_BOUNDARY_HOLD"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_medical_medication_adjustment_ack_missing_001",
+        "traceId": "trc_medical_medication_adjustment_ack_missing_001",
+        "sourceSystem": "clinical_cdss",
+        "adapterType": "clinical_decision_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_medical_medication_adjustment_ack_missing_001",
+        "payloadHash": "d1ae1a2caa45278cedac1117d7d0b4c580f2dabf59884b8f26bb91a549f9f857",
+        "dedupeKey": "clinical_cdss:medical_medication_adjustment_ack_missing_001"
+      },
+      "trustContext": {
+        "authenticationState": "verified",
+        "authorizationState": "verified",
+        "identityProofingMethod": "directory_session",
+        "sourceTrustLevel": "high",
+        "signatureState": "verified",
+        "transportIntegrity": "trusted_internal_tls"
+      },
+      "integrationContext": {
+        "inboundAdapter": "clinical_decision_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local clinical workflow without changing MFOS semantics",
+        "policyVersion": "1.4.2"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": true,
+        "idempotencyKey": "idem_medical_medication_adjustment_ack_missing_001",
+        "duplicateCheckRequired": true,
+        "duplicateState": "new",
+        "priorDecisionReuse": "return_cached_decision_if_duplicate",
+        "replayWindowHours": 24
+      },
+      "auditRecord": {
+        "eventId": "evt_medical_medication_adjustment_ack_missing_001",
+        "traceId": "trc_medical_medication_adjustment_ack_missing_001",
+        "decision": "slow",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
+        "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": true,
+        "ownerAcknowledged": false,
+        "ownerAuthorized": true,
+        "secondOwnerRequired": false,
+        "secondOwnerBound": false,
+        "executionEligible": false
       }
     }
   ],
-  "caseCount": 10,
+  "caseCount": 12,
   "runtimeContract": {
     "coreExecutionModel": "stateless_deterministic_gate",
     "designIntent": "Run classification and gate evaluation inline for low-latency decisions while keeping irreversible side effects outside the core gate.",
@@ -1861,12 +2586,28 @@
       "failClosedOn": [
         "high_risk_action_with_missing_identity",
         "missing_idempotency_on_mutation",
-        "signature_invalid_on_trusted_required_channel"
+        "signature_invalid_on_trusted_required_channel",
+        "missing_owner_at_commit_boundary",
+        "unauthorized_owner_role_for_high_consequence_action",
+        "dual_control_required_but_second_owner_missing"
       ],
       "failOpenAllowedOn": [
         "descriptive_or_educational_content_with_no_action"
       ],
       "degradationMode": "Preserve prior verified decision when duplicate is confirmed. Otherwise slow or block rather than guess."
+    },
+    "ownershipRequirement": {
+      "enforceAtCommitBoundary": true,
+      "allowRequiresBoundOwnerWhenOwnershipRequired": true,
+      "highConsequenceRequiresAcknowledgement": true,
+      "overrideRequiresRebinding": true,
+      "dualControlMayBeRequired": true,
+      "failClosedOn": [
+        "missing_owner_at_commit_boundary",
+        "owner_acknowledgement_required_but_absent",
+        "unauthorized_owner_role_for_high_consequence_action",
+        "dual_control_required_but_second_owner_missing"
+      ]
     }
   },
   "securityEnforcement": {
@@ -1941,13 +2682,17 @@
       "traceId",
       "eventId",
       "decisionVersion",
-      "policyVersion"
+      "policyVersion",
+      "ownerBinding",
+      "ownerAcknowledgement",
+      "commitState"
     ],
     "adapterResponsibilities": {
       "normalize": "Convert channel-specific payloads into MFOS envelope and classification-ready content.",
       "authenticate": "Attach verified identity and authorization results where available.",
       "mapSideEffects": "Bind MFOS allow/slow/block results to local workflow actions without changing MFOS semantics.",
-      "emitAuditRecord": "Write canonical audit record with traceId, eventId, decision, and reasonCodes."
+      "emitAuditRecord": "Write canonical audit record with traceId, eventId, decision, and reasonCodes.",
+      "bindOwner": "Resolve and attach owner identity, authority class, acknowledgement state, and second-owner state before execution is permitted."
     },
     "reasonCodeMappingContract": {
       "defaultSeverityBands": {
@@ -1969,6 +2714,21 @@
         ],
         "VERIFICATION_PENDING": [
           "independent_validation"
+        ],
+        "MISSING_OWNER_AT_COMMIT_BOUNDARY": [
+          "decision_ownership",
+          "commit_boundary_control"
+        ],
+        "OWNER_ACKNOWLEDGEMENT_REQUIRED": [
+          "operator_confirmation",
+          "commit_boundary_control"
+        ],
+        "SECOND_OWNER_REQUIRED_BUT_MISSING": [
+          "dual_control",
+          "segregation_of_duties"
+        ],
+        "UNAUTHORIZED_OWNER_ROLE": [
+          "role_based_authority_control"
         ]
       }
     }
@@ -2008,11 +2768,81 @@
       "Added interoperability contract for adapters, audit output, and reason-code mapping.",
       "Added idempotency and replay contract for mutating events.",
       "Added cases covering credential exfiltration, verified internal APIs, replayed workflow events, and missing idempotency.",
-      "Normalized self-approval block rule from SELF_APPROVAL_WHEN_SECOND_REVIEW_REQUIRED to SELF_APPROVAL_BLOCKED_AND_SECOND_REVIEW_REQUIRED so strict token matching works without inferred mapping."
+      "Normalized self-approval block rule from SELF_APPROVAL_WHEN_SECOND_REVIEW_REQUIRED to SELF_APPROVAL_BLOCKED_AND_SECOND_REVIEW_REQUIRED so strict token matching works without inferred mapping.",
+      "Added explicit ownership binding, owner acknowledgement, and dual-control enforcement primitives.",
+      "Added UI contract fields so the surface layer must show owner, acknowledgement, and commit eligibility before execution."
     ],
     "compatibility": {
       "existingCoreFieldsPreserved": true,
       "newFieldsAreAdditive": true
+    }
+  },
+  "ownershipEnforcementContract": {
+    "designIntent": "Ownership is not descriptive metadata. Any mutating or high-consequence action must bind to a named, verified, and authorized owner before crossing the commit boundary.",
+    "commitBoundaryPrinciples": [
+      "No execution without explicit owner when ownership is required.",
+      "Owner verification and owner authority are separate checks and both must pass.",
+      "Owner acknowledgement is required for high-consequence, irreversible, or override paths.",
+      "Dual-control actions require a distinct second owner when policy says the risk cannot be carried by one actor alone.",
+      "Any override creates a new ownership event and fresh audit record rather than bypassing ownership."
+    ],
+    "requiredOwnershipFields": [
+      "required",
+      "actorType",
+      "actorId",
+      "explicit",
+      "verified",
+      "authorized",
+      "acknowledged",
+      "commitRole",
+      "ownershipMode",
+      "bindingState",
+      "secondReviewRequired",
+      "secondActorId",
+      "secondActorVerified"
+    ],
+    "enforcementOutcomes": {
+      "allow": [
+        "ownership not required, or named owner bound and verified",
+        "owner acknowledgement present when required",
+        "second owner satisfied when dual control is required"
+      ],
+      "slow": [
+        "owner named but acknowledgement pending",
+        "primary owner bound but second owner still pending",
+        "commit boundary reached but independent validation still open"
+      ],
+      "block": [
+        "missing owner at commit boundary",
+        "owner not authorized for action class",
+        "override attempted without rebinding ownership",
+        "dual-control required but second owner missing"
+      ]
+    },
+    "authorityClassPolicies": {
+      "human_operator": "Default for enterprise workflow approvals, payment changes, and internal business actions.",
+      "service_account": "Allowed only for pre-authorized, traceable, low-risk or policy-approved automated actions.",
+      "clinical_licensed": "Required when recommendations cross into direct patient care, medication, or triage execution.",
+      "flight_authority": "Required when recommendations cross into dispatch release, route deviation commitment, or safety-significant flight execution."
+    }
+  },
+  "uiDecisionContract": {
+    "mustDisplayBeforeExecutableDecision": [
+      "decision",
+      "reasonCodes",
+      "consequenceProfile.severity",
+      "ownership.actorId",
+      "ownership.commitRole",
+      "ownership.acknowledged",
+      "ownership.bindingState",
+      "ownership.secondReviewRequired",
+      "ownership.secondActorId",
+      "ownershipCommit.executionEligible"
+    ],
+    "visualEmphasis": {
+      "allow": "show bound owner and acknowledgement state before enabling execution",
+      "slow": "show exactly which ownership requirement remains open",
+      "block": "surface missing owner or authority failure as primary reason"
     }
   }
 }
