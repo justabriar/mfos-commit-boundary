@@ -148,18 +148,7 @@ Use this package to demonstrate five separate claims:
 4. actor separation is visible and attestable
 5. reviewed artifacts only stay eligible while the binding remains fresh and aligned
 
-Recommended GitHub next steps
-
-Before pushing public, decide the license and replace `LICENSE\\\\\\\_DECISION\\\\\\\_REQUIRED.txt` with the actual license you want to ship. GitHub also recommends a README for every repository because it helps visitors understand the project and how to use it. citeturn351886search8turn351886search0
-
-A clean public repo sequence would be:
-
-1. add this package to the repo root
-2. commit `README.md` with the schema and examples
-3. choose and add a real license file
-4. push the v1.6.2 tag or release notes
-
-Plainspoken readout
+## Plainspoken readout
 
 v1.6.1 proved MFOS knew when to leave things alone. v1.6.2 proves that when it does touch the gate, the packet has to show conditions, people, freshness, and trace. That is the difference between “looks governed” and “is governed.”
 
