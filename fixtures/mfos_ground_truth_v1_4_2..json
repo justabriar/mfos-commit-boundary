@@ -1,0 +1,2848 @@
+{
+  "suiteVersion": "1.4.2",
+  "suiteName": "mfos_ground_truth_v1_4_2",
+  "artifactType": "mfosGroundTruthSuite",
+  "consolidated": true,
+  "description": "Refined MFOS ground-truth suite for commit-boundary evaluation. This version preserves mechanical gate logic while making ownership binding, owner acknowledgement, and dual-control requirements first-class enforcement signals for high-consequence execution in enterprise, aviation, and clinical-style workflows.",
+  "verificationTargets": [
+    "classification.pressureProfile",
+    "classification.actionIntent",
+    "classification.consequenceProfile",
+    "classification.authorityProfile",
+    "classification.tempoProfile",
+    "classification.clarityProfile",
+    "ownership",
+    "thresholdEvaluation.mechanicalTriggers",
+    "mfosGate",
+    "eventEnvelope",
+    "trustContext",
+    "integrationContext",
+    "processingProfile",
+    "idempotencyProfile",
+    "auditRecord",
+    "ownershipCommit",
+    "ownershipEnforcementContract",
+    "uiDecisionContract"
+  ],
+  "decisionPriority": [
+    "block",
+    "slow",
+    "allow"
+  ],
+  "gateRules": {
+    "allow": [
+      "ACTION_NONE_AND_CONSEQUENCE_LOW",
+      "PRESSURE_NONE_OR_MILD",
+      "OWNERSHIP_NOT_REQUIRED_OR_VERIFIED",
+      "OWNERSHIP_REQUIRED_IMPLIES_COMMIT_OWNER_VERIFIED",
+      "OWNER_ACKNOWLEDGEMENT_PRESENT_WHEN_REQUIRED"
+    ],
+    "slow": [
+      "ACTION_IMPLIED",
+      "PRESSURE_MODERATE",
+      "CONSEQUENCE_MEDIUM",
+      "OWNERSHIP_UNCLEAR",
+      "IDENTITY_UNVERIFIED",
+      "AMBIGUITY_HIGH",
+      "VERIFICATION_PENDING",
+      "AUTHENTICATION_PARTIAL",
+      "TRUST_CONTEXT_LOW",
+      "SIGNATURE_MISSING",
+      "TRACE_MISSING",
+      "OWNER_DECLARED_BUT_ACK_PENDING",
+      "SECOND_OWNER_PENDING",
+      "COMMIT_BOUNDARY_HOLD"
+    ],
+    "block": [
+      "ACTION_EXPLICIT_AND_PRESSURE_STRONG",
+      "CONSEQUENCE_HIGH_AND_VERIFICATION_WEAK",
+      "IRREVERSIBLE_ACTION_WITHOUT_VERIFIED_OWNER",
+      "SELF_APPROVAL_BLOCKED_AND_SECOND_REVIEW_REQUIRED",
+      "SECRECY_PLUS_HIGH_RISK_ACTION",
+      "CREDENTIAL_REQUEST_IN_LOW_TRUST_CONTEXT",
+      "AUTHENTICATION_FAILED",
+      "AUTHORIZATION_FAILED",
+      "SIGNATURE_INVALID",
+      "REPLAY_DETECTED",
+      "IDEMPOTENCY_KEY_MISSING",
+      "TRANSPORT_UNTRUSTED",
+      "MISSING_OWNER_AT_COMMIT_BOUNDARY",
+      "OWNER_ACKNOWLEDGEMENT_REQUIRED",
+      "UNAUTHORIZED_OWNER_ROLE",
+      "SECOND_OWNER_REQUIRED_BUT_MISSING",
+      "OVERRIDE_WITHOUT_REBINDING"
+    ]
+  },
+  "reasonCodeCatalog": {
+    "ACTION_NONE": "No action is being directed at the user or operator.",
+    "ACTION_IMPLIED": "A directional request is present but the exact action is still incomplete or deferred.",
+    "ACTION_EXPLICIT": "A concrete action is directly requested.",
+    "PRESSURE_MILD": "Pressure exists but is not strongly compressing tempo or choice.",
+    "PRESSURE_MODERATE": "Pressure is meaningfully shaping decision tempo or emotional framing.",
+    "PRESSURE_STRONG": "Pressure is actively compressing tempo, narrowing choice, or driving compliance.",
+    "CONSEQUENCE_LOW": "Little or no meaningful harm exposure is present.",
+    "CONSEQUENCE_MEDIUM": "The action can affect trust, workflow, policy, or moderate resources.",
+    "CONSEQUENCE_HIGH": "The action can materially affect money, systems, identity, compliance, or safety.",
+    "IRREVERSIBLE_ACTION": "The requested action cannot be easily undone.",
+    "AUTHORITY_FORMAL": "The message or workflow invokes formal authority or process.",
+    "AUTHORITY_COERCIVE": "Authority is being used to force compliance.",
+    "TEMPO_SOFT": "Some urgency exists, but delay is still plausible.",
+    "TEMPO_HARD": "The message or workflow pushes immediate or near-immediate action.",
+    "IDENTITY_UNVERIFIED": "The sender or initiating actor is not sufficiently verified.",
+    "AMBIGUITY_HIGH": "The action or context remains materially unclear.",
+    "OWNERSHIP_MISSING": "No explicit owner is present for carrying the action across the boundary.",
+    "OWNERSHIP_UNVERIFIED": "An owner exists but is not verified or not permitted to commit this action.",
+    "SELF_APPROVAL_BLOCKED": "The same actor is attempting to approve their own high-risk action where independent review is required.",
+    "SECOND_REVIEW_REQUIRED": "The action cannot proceed without an independent reviewer.",
+    "SECRECY_PRESENT": "The message introduces secrecy as a control tactic.",
+    "VERIFICATION_PENDING": "Required verification steps have not completed yet.",
+    "AUTHENTICATION_PARTIAL": "Some identity evidence exists, but the actor has not been fully authenticated for the requested action.",
+    "AUTHENTICATION_FAILED": "Identity validation failed or no trusted identity proof is available where policy requires it.",
+    "AUTHORIZATION_FAILED": "The actor is verified but is not permitted to request or approve the action.",
+    "TRUST_CONTEXT_LOW": "The channel, source, or transport does not meet the minimum trust level for the requested action.",
+    "SIGNATURE_MISSING": "A signed message or signed workflow event was required, but no valid signature was provided.",
+    "SIGNATURE_INVALID": "A signature or cryptographic proof was present but failed validation.",
+    "TRANSPORT_UNTRUSTED": "The event arrived through a channel that does not meet required transport integrity.",
+    "EVENT_DUPLICATE": "The event matches a previously received event and should not trigger fresh side effects.",
+    "REPLAY_DETECTED": "A previously committed or processed event reappeared outside acceptable retry semantics.",
+    "IDEMPOTENCY_KEY_MISSING": "A mutating action lacks the idempotency key required for safe distributed processing.",
+    "TRACE_MISSING": "The event cannot be reliably traced across systems because required identifiers are absent.",
+    "OWNERSHIP_REQUIRED_IMPLIES_COMMIT_OWNER_VERIFIED": "When ownership is required, the action may only proceed if a named owner is explicitly bound and verified at the commit boundary.",
+    "OWNER_ACKNOWLEDGEMENT_PRESENT_WHEN_REQUIRED": "The bound owner has explicitly acknowledged responsibility for the action before execution.",
+    "OWNER_DECLARED_BUT_ACK_PENDING": "A primary owner is named, but acknowledgement has not yet been completed where policy requires it.",
+    "SECOND_OWNER_PENDING": "Dual-control workflow is active and the second required owner has not yet completed review or acknowledgement.",
+    "COMMIT_BOUNDARY_HOLD": "The system has reached the point where execution would change reality, but commit-boundary requirements are not yet satisfied.",
+    "MISSING_OWNER_AT_COMMIT_BOUNDARY": "Execution reached the commit boundary without a named accountable owner bound to the action.",
+    "OWNER_ACKNOWLEDGEMENT_REQUIRED": "A required owner has not explicitly accepted responsibility before execution.",
+    "UNAUTHORIZED_OWNER_ROLE": "The proposed owner is verified but does not hold the required role or authority class for this action.",
+    "SECOND_OWNER_REQUIRED_BUT_MISSING": "Policy requires a separate second owner or reviewer before execution, and that second owner is not yet bound.",
+    "OVERRIDE_WITHOUT_REBINDING": "An override attempt was made without creating a fresh ownership binding and audit event for the new decision."
+  },
+  "testMatrix": {
+    "pressureStrength": [
+      "none",
+      "mild",
+      "moderate",
+      "strong"
+    ],
+    "actionMode": [
+      "none",
+      "implied",
+      "explicit"
+    ],
+    "consequenceSeverity": [
+      "low",
+      "medium",
+      "high",
+      "irreversible"
+    ],
+    "authorityType": [
+      "none",
+      "informal",
+      "formal",
+      "coercive"
+    ],
+    "ownershipState": [
+      "not_required",
+      "explicit_verified",
+      "explicit_unverified",
+      "missing"
+    ],
+    "coreCoverageGoals": [
+      "clean routine message",
+      "educational or descriptive language with no directed action",
+      "ambiguous emotional pressure with deferred risk",
+      "explicit financial pressure",
+      "friendly tone plus risky action",
+      "formal workflow ownership failure",
+      "high-risk credential request in low-trust channel",
+      "duplicate or replayed mutation event",
+      "verified internal API action under traceable identity",
+      "mutating event missing idempotency controls"
+    ],
+    "securityTrust": [
+      "not_applicable",
+      "partial",
+      "verified",
+      "failed"
+    ],
+    "deliveryMode": [
+      "inline_sync",
+      "async_queue"
+    ],
+    "duplicateState": [
+      "new",
+      "duplicate_same_payload",
+      "duplicate_conflict",
+      "replay_after_commit"
+    ],
+    "ownerBindingState": [
+      "not_required",
+      "missing",
+      "declared_unverified",
+      "bound_verified",
+      "bound_primary_pending_second_review"
+    ],
+    "ownerAcknowledgementState": [
+      "not_required",
+      "pending",
+      "present"
+    ],
+    "ownerAuthorityClass": [
+      "not_applicable",
+      "human_operator",
+      "service_account",
+      "clinical_licensed",
+      "flight_authority"
+    ],
+    "dualControlState": [
+      "not_required",
+      "required_pending",
+      "required_satisfied"
+    ]
+  },
+  "cases": [
+    {
+      "caseId": "clean_routine_review_001",
+      "title": "Routine review with no pressure and no risky action",
+      "packetType": "clean",
+      "input": {
+        "sourceType": "email",
+        "channel": "inbound_message",
+        "content": "I updated the draft timeline for next week. Review it when you have time and let me know what needs to change.",
+        "contextNotes": [
+          "known business thread",
+          "no money request",
+          "no secrecy",
+          "no urgency"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": false,
+          "types": [],
+          "strength": "none",
+          "evidence": []
+        },
+        "actionIntent": {
+          "present": false,
+          "mode": "none",
+          "targetAction": "none",
+          "actionCount": 0,
+          "deferredRisk": false,
+          "evidence": []
+        },
+        "consequenceProfile": {
+          "severity": "low",
+          "domains": [],
+          "recoveryDifficulty": "easy",
+          "irreversible": false,
+          "exposureLevel": "minimal"
+        },
+        "authorityProfile": {
+          "present": false,
+          "type": "none",
+          "strength": "none",
+          "evidence": []
+        },
+        "tempoProfile": {
+          "urgencyLevel": "none",
+          "timeConstraint": "none",
+          "cooldownRecommended": false,
+          "evidence": []
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "clear",
+          "verificationState": "verified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": false,
+        "actorType": "none",
+        "actorId": null,
+        "explicit": false,
+        "verified": false,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": false,
+        "authorized": false,
+        "acknowledged": false,
+        "commitRole": null,
+        "ownershipMode": "none",
+        "bindingState": "not_required",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": null
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 0,
+        "actionScore": 0,
+        "consequenceScore": 0,
+        "authorityScore": 0,
+        "tempoScore": 0,
+        "ownershipScore": 0,
+        "mechanicalTriggers": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ]
+      },
+      "mfosGate": {
+        "decision": "allow",
+        "reasonCodes": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ],
+        "explanation": "Routine review message with no directional risk, no tempo compression, and no meaningful consequence exposure.",
+        "requiredNextSteps": [],
+        "ownerBinding": {
+          "bindingState": "not_required",
+          "actorId": null,
+          "actorType": "none",
+          "commitRole": null,
+          "authorityClass": null
+        },
+        "ownerAcknowledgement": false,
+        "commitState": "eligible"
+      },
+      "groundTruth": {
+        "expectedDecision": "allow",
+        "mustIncludeReasonCodes": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "PRESSURE_STRONG",
+          "ACTION_EXPLICIT",
+          "OWNERSHIP_MISSING"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_clean_routine_review_001",
+        "traceId": "trc_clean_routine_review_001",
+        "sourceSystem": "email",
+        "adapterType": "mail_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_clean_routine_review_001",
+        "payloadHash": "8485814aee8c11e8781686e34bc896a839be8f6ed29faf03403ac5ba5bcaaf1d",
+        "dedupeKey": "email:clean_routine_review_001"
+      },
+      "trustContext": {
+        "authenticationState": "verified",
+        "authorizationState": "not_required",
+        "identityProofingMethod": "directory_session",
+        "sourceTrustLevel": "standard",
+        "signatureState": "not_required",
+        "transportIntegrity": "external_standard_tls"
+      },
+      "integrationContext": {
+        "inboundAdapter": "mail_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.2"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": false,
+        "idempotencyKey": null,
+        "duplicateCheckRequired": false,
+        "duplicateState": "new",
+        "priorDecisionReuse": "not_applicable",
+        "replayWindowHours": 0
+      },
+      "auditRecord": {
+        "eventId": "evt_clean_routine_review_001",
+        "traceId": "trc_clean_routine_review_001",
+        "decision": "allow",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
+        "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": false,
+        "ownerRequiredAtCommit": false,
+        "ownerBound": false,
+        "ownerAcknowledged": false,
+        "ownerAuthorized": false,
+        "secondOwnerRequired": false,
+        "secondOwnerBound": false,
+        "executionEligible": true
+      }
+    },
+    {
+      "caseId": "false_positive_educational_001",
+      "title": "Educational scam article contains pressure language but does not direct user action",
+      "packetType": "false_positive_resistance",
+      "input": {
+        "sourceType": "article",
+        "channel": "webpage",
+        "content": "Scammers often create urgency to pressure people into sending money quickly. A common tactic is pretending there is no time to verify the request.",
+        "contextNotes": [
+          "educational content",
+          "describes scam tactics",
+          "no direct request to reader"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": true,
+          "types": [
+            "urgency"
+          ],
+          "strength": "mild",
+          "evidence": [
+            "create urgency",
+            "no time to verify"
+          ]
+        },
+        "actionIntent": {
+          "present": false,
+          "mode": "none",
+          "targetAction": "none",
+          "actionCount": 0,
+          "deferredRisk": false,
+          "evidence": []
+        },
+        "consequenceProfile": {
+          "severity": "low",
+          "domains": [],
+          "recoveryDifficulty": "easy",
+          "irreversible": false,
+          "exposureLevel": "minimal"
+        },
+        "authorityProfile": {
+          "present": false,
+          "type": "none",
+          "strength": "none",
+          "evidence": []
+        },
+        "tempoProfile": {
+          "urgencyLevel": "none",
+          "timeConstraint": "none",
+          "cooldownRecommended": false,
+          "evidence": []
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "clear",
+          "verificationState": "verified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": false,
+        "actorType": "none",
+        "actorId": null,
+        "explicit": false,
+        "verified": false,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": false,
+        "authorized": false,
+        "acknowledged": false,
+        "commitRole": null,
+        "ownershipMode": "none",
+        "bindingState": "not_required",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": null
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 1,
+        "actionScore": 0,
+        "consequenceScore": 0,
+        "authorityScore": 0,
+        "tempoScore": 0,
+        "ownershipScore": 0,
+        "mechanicalTriggers": [
+          "PRESSURE_MILD",
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ]
+      },
+      "mfosGate": {
+        "decision": "allow",
+        "reasonCodes": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ],
+        "explanation": "Pressure language is present only as description. No action is being pushed across the boundary.",
+        "requiredNextSteps": [],
+        "ownerBinding": {
+          "bindingState": "not_required",
+          "actorId": null,
+          "actorType": "none",
+          "commitRole": null,
+          "authorityClass": null
+        },
+        "ownerAcknowledgement": false,
+        "commitState": "eligible"
+      },
+      "groundTruth": {
+        "expectedDecision": "allow",
+        "mustIncludeReasonCodes": [
+          "ACTION_NONE"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "ACTION_EXPLICIT",
+          "PRESSURE_STRONG",
+          "OWNERSHIP_MISSING"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_false_positive_educational_001",
+        "traceId": "trc_false_positive_educational_001",
+        "sourceSystem": "article",
+        "adapterType": "content_ingest_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_false_positive_educational_001",
+        "payloadHash": "045228a4412d3f607ff8bf4789664d50710ce7945cc6be5336e58227425ce3d4",
+        "dedupeKey": "article:false_positive_educational_001"
+      },
+      "trustContext": {
+        "authenticationState": "not_applicable",
+        "authorizationState": "not_required",
+        "identityProofingMethod": "not_applicable",
+        "sourceTrustLevel": "standard",
+        "signatureState": "not_required",
+        "transportIntegrity": "external_standard_tls"
+      },
+      "integrationContext": {
+        "inboundAdapter": "content_ingest_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.2"
+      },
+      "processingProfile": {
+        "executionPath": "async_queue",
+        "latencyClass": "batch",
+        "targetDecisionLatencyMs": 30000,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": false
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": false,
+        "idempotencyKey": null,
+        "duplicateCheckRequired": false,
+        "duplicateState": "new",
+        "priorDecisionReuse": "not_applicable",
+        "replayWindowHours": 0
+      },
+      "auditRecord": {
+        "eventId": "evt_false_positive_educational_001",
+        "traceId": "trc_false_positive_educational_001",
+        "decision": "allow",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
+        "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": false,
+        "ownerRequiredAtCommit": false,
+        "ownerBound": false,
+        "ownerAcknowledged": false,
+        "ownerAuthorized": false,
+        "secondOwnerRequired": false,
+        "secondOwnerBound": false,
+        "executionEligible": true
+      }
+    },
+    {
+      "caseId": "ambiguous_help_request_001",
+      "title": "Emotionally loaded request that implies action but keeps the ask vague",
+      "packetType": "ambiguous",
+      "input": {
+        "sourceType": "sms",
+        "channel": "inbound_message",
+        "content": "Hey, can you help me out today? I\u2019m in a tight spot and really need a favor.",
+        "contextNotes": [
+          "request is not yet specific",
+          "sender identity not independently verified"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": true,
+          "types": [
+            "emotional_leverage"
+          ],
+          "strength": "mild",
+          "evidence": [
+            "tight spot",
+            "really need a favor"
+          ]
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "implied",
+          "targetAction": "other",
+          "actionCount": 1,
+          "deferredRisk": true,
+          "evidence": [
+            "help me out today"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "medium",
+          "domains": [
+            "trust"
+          ],
+          "recoveryDifficulty": "moderate",
+          "irreversible": false,
+          "exposureLevel": "limited"
+        },
+        "authorityProfile": {
+          "present": false,
+          "type": "none",
+          "strength": "none",
+          "evidence": []
+        },
+        "tempoProfile": {
+          "urgencyLevel": "implied",
+          "timeConstraint": "soft",
+          "cooldownRecommended": true,
+          "evidence": [
+            "today"
+          ]
+        },
+        "clarityProfile": {
+          "requestClarity": "partial",
+          "identityClarity": "partial",
+          "verificationState": "unverified",
+          "ambiguityLevel": "high"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "user",
+        "actorId": "local_user",
+        "explicit": false,
+        "verified": false,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": false,
+        "authorized": false,
+        "acknowledged": false,
+        "commitRole": "human_operator",
+        "ownershipMode": "single_owner",
+        "bindingState": "missing",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": "human_operator"
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 1,
+        "actionScore": 2,
+        "consequenceScore": 2,
+        "authorityScore": 0,
+        "tempoScore": 1,
+        "ownershipScore": 0,
+        "mechanicalTriggers": [
+          "ACTION_IMPLIED",
+          "AMBIGUITY_HIGH",
+          "IDENTITY_UNVERIFIED",
+          "OWNERSHIP_MISSING",
+          "TEMPO_SOFT"
+        ]
+      },
+      "mfosGate": {
+        "decision": "slow",
+        "reasonCodes": [
+          "ACTION_IMPLIED",
+          "AMBIGUITY_HIGH",
+          "OWNERSHIP_MISSING",
+          "IDENTITY_UNVERIFIED",
+          "MISSING_OWNER_AT_COMMIT_BOUNDARY",
+          "COMMIT_BOUNDARY_HOLD"
+        ],
+        "explanation": "Directional pressure is present, but the actual ask remains unclear and verification is incomplete. The request cannot cross the commit boundary without a named owner.",
+        "requiredNextSteps": [
+          "clarify the requested action",
+          "verify sender identity through an independent channel",
+          "establish explicit ownership before any action"
+        ],
+        "ownerBinding": {
+          "bindingState": "missing",
+          "actorId": "local_user",
+          "actorType": "user",
+          "commitRole": "human_operator",
+          "authorityClass": "human_operator"
+        },
+        "ownerAcknowledgement": false,
+        "commitState": "hold"
+      },
+      "groundTruth": {
+        "expectedDecision": "slow",
+        "mustIncludeReasonCodes": [
+          "ACTION_IMPLIED",
+          "AMBIGUITY_HIGH"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "ACTION_NONE",
+          "PRESSURE_STRONG",
+          "SELF_APPROVAL_BLOCKED"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_ambiguous_help_request_001",
+        "traceId": "trc_ambiguous_help_request_001",
+        "sourceSystem": "sms",
+        "adapterType": "sms_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_ambiguous_help_request_001",
+        "payloadHash": "ee77810e3b80e30908733b02938d04f635997c2d5880bb58323f10230b57b5e5",
+        "dedupeKey": "sms:ambiguous_help_request_001"
+      },
+      "trustContext": {
+        "authenticationState": "failed",
+        "authorizationState": "not_required",
+        "identityProofingMethod": "not_applicable",
+        "sourceTrustLevel": "low",
+        "signatureState": "not_required",
+        "transportIntegrity": "external_untrusted"
+      },
+      "integrationContext": {
+        "inboundAdapter": "sms_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.2"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": false,
+        "idempotencyKey": null,
+        "duplicateCheckRequired": false,
+        "duplicateState": "new",
+        "priorDecisionReuse": "not_applicable",
+        "replayWindowHours": 0
+      },
+      "auditRecord": {
+        "eventId": "evt_ambiguous_help_request_001",
+        "traceId": "trc_ambiguous_help_request_001",
+        "decision": "slow",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
+        "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": false,
+        "ownerAcknowledged": false,
+        "ownerAuthorized": false,
+        "secondOwnerRequired": false,
+        "secondOwnerBound": false,
+        "executionEligible": false
+      }
+    },
+    {
+      "caseId": "financial_pressure_cashapp_001",
+      "title": "Explicit money request with urgency and obligation pressure",
+      "packetType": "pressure",
+      "input": {
+        "sourceType": "email",
+        "channel": "inbound_message",
+        "content": "Hey, I\u2019m facing a real family issue and I would like your help with some money. Can you send me $200 on Cash App today? I promise to pay you back by the end of the week. Please do this right now.",
+        "contextNotes": [
+          "sender identity unverified",
+          "money request present",
+          "high-trust emotional framing attempted"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": true,
+          "types": [
+            "urgency",
+            "crisis_leverage",
+            "forced_reciprocity"
+          ],
+          "strength": "strong",
+          "evidence": [
+            "family issue",
+            "today",
+            "promise to pay you back",
+            "right now"
+          ]
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "explicit",
+          "targetAction": "send_money",
+          "actionCount": 1,
+          "deferredRisk": false,
+          "evidence": [
+            "send me $200 on Cash App today",
+            "Please do this right now"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "high",
+          "domains": [
+            "financial",
+            "trust"
+          ],
+          "recoveryDifficulty": "hard",
+          "irreversible": true,
+          "exposureLevel": "significant"
+        },
+        "authorityProfile": {
+          "present": false,
+          "type": "none",
+          "strength": "none",
+          "evidence": []
+        },
+        "tempoProfile": {
+          "urgencyLevel": "explicit",
+          "timeConstraint": "hard",
+          "cooldownRecommended": true,
+          "evidence": [
+            "today",
+            "right now"
+          ]
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "unclear",
+          "verificationState": "unverified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "user",
+        "actorId": "local_user",
+        "explicit": false,
+        "verified": false,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": false,
+        "authorized": false,
+        "acknowledged": false,
+        "commitRole": "human_operator",
+        "ownershipMode": "single_owner",
+        "bindingState": "missing",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": "human_operator"
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 3,
+        "actionScore": 3,
+        "consequenceScore": 3,
+        "authorityScore": 0,
+        "tempoScore": 3,
+        "ownershipScore": 0,
+        "mechanicalTriggers": [
+          "PRESSURE_STRONG",
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "IRREVERSIBLE_ACTION",
+          "TEMPO_HARD",
+          "OWNERSHIP_MISSING",
+          "IDENTITY_UNVERIFIED"
+        ]
+      },
+      "mfosGate": {
+        "decision": "block",
+        "reasonCodes": [
+          "PRESSURE_STRONG",
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "OWNERSHIP_MISSING",
+          "IDENTITY_UNVERIFIED",
+          "IRREVERSIBLE_ACTION",
+          "MISSING_OWNER_AT_COMMIT_BOUNDARY"
+        ],
+        "explanation": "Explicit high-risk money movement is requested under strong pressure with no verified sender and no explicit owner carrying the action. The request also fails commit-boundary ownership.",
+        "requiredNextSteps": [
+          "verify sender identity through an independent channel",
+          "do not move money until verification completes",
+          "establish explicit ownership before any action"
+        ],
+        "ownerBinding": {
+          "bindingState": "missing",
+          "actorId": "local_user",
+          "actorType": "user",
+          "commitRole": "human_operator",
+          "authorityClass": "human_operator"
+        },
+        "ownerAcknowledgement": false,
+        "commitState": "hold"
+      },
+      "groundTruth": {
+        "expectedDecision": "block",
+        "mustIncludeReasonCodes": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "PRESSURE_STRONG"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW",
+          "AUTHORITY_FORMAL"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_financial_pressure_cashapp_001",
+        "traceId": "trc_financial_pressure_cashapp_001",
+        "sourceSystem": "email",
+        "adapterType": "mail_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_financial_pressure_cashapp_001",
+        "payloadHash": "4e58fa5ecb47c0d0251540ae9fb6a4d5f35ed7f711bf663071a26bb5c0ddef9e",
+        "dedupeKey": "email:financial_pressure_cashapp_001"
+      },
+      "trustContext": {
+        "authenticationState": "failed",
+        "authorizationState": "not_required",
+        "identityProofingMethod": "not_applicable",
+        "sourceTrustLevel": "low",
+        "signatureState": "not_required",
+        "transportIntegrity": "external_untrusted"
+      },
+      "integrationContext": {
+        "inboundAdapter": "mail_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.2"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": true,
+        "idempotencyKey": "idem_financial_pressure_cashapp_001",
+        "duplicateCheckRequired": true,
+        "duplicateState": "new",
+        "priorDecisionReuse": "return_cached_decision_if_duplicate",
+        "replayWindowHours": 72
+      },
+      "auditRecord": {
+        "eventId": "evt_financial_pressure_cashapp_001",
+        "traceId": "trc_financial_pressure_cashapp_001",
+        "decision": "block",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
+        "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": false,
+        "ownerAcknowledged": false,
+        "ownerAuthorized": false,
+        "secondOwnerRequired": false,
+        "secondOwnerBound": false,
+        "executionEligible": false
+      }
+    },
+    {
+      "caseId": "friendly_bank_change_001",
+      "title": "Warm tone and known context do not erase a risky bank-change request",
+      "packetType": "deferred_risk",
+      "input": {
+        "sourceType": "email",
+        "channel": "inbound_message",
+        "content": "Hope you\u2019re doing well. Quick favor before Friday. We changed banks for payouts, so please update the remittance account on file and reply once it\u2019s done so we can keep shipping on schedule.",
+        "contextNotes": [
+          "friendly tone",
+          "vendor-style operational request",
+          "bank-change request can alter money destination",
+          "verification not yet completed"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": true,
+          "types": [
+            "urgency"
+          ],
+          "strength": "moderate",
+          "evidence": [
+            "before Friday",
+            "keep shipping on schedule"
+          ]
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "explicit",
+          "targetAction": "approve",
+          "actionCount": 2,
+          "deferredRisk": true,
+          "evidence": [
+            "update the remittance account on file",
+            "reply once it\u2019s done"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "high",
+          "domains": [
+            "financial",
+            "policy"
+          ],
+          "recoveryDifficulty": "hard",
+          "irreversible": true,
+          "exposureLevel": "significant"
+        },
+        "authorityProfile": {
+          "present": true,
+          "type": "informal",
+          "strength": "mild",
+          "evidence": [
+            "quick favor"
+          ]
+        },
+        "tempoProfile": {
+          "urgencyLevel": "explicit",
+          "timeConstraint": "soft",
+          "cooldownRecommended": true,
+          "evidence": [
+            "before Friday"
+          ]
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "partial",
+          "verificationState": "partial",
+          "ambiguityLevel": "medium"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "operator",
+        "actorId": "ap_clerk_01",
+        "explicit": true,
+        "verified": true,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": true,
+        "authorized": true,
+        "acknowledged": true,
+        "commitRole": "human_operator",
+        "ownershipMode": "dual_control",
+        "bindingState": "bound_primary_pending_second_review",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": "human_operator"
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 2,
+        "actionScore": 3,
+        "consequenceScore": 3,
+        "authorityScore": 1,
+        "tempoScore": 1,
+        "ownershipScore": 2,
+        "mechanicalTriggers": [
+          "PRESSURE_MODERATE",
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "IRREVERSIBLE_ACTION",
+          "VERIFICATION_PENDING",
+          "SECOND_REVIEW_REQUIRED"
+        ]
+      },
+      "mfosGate": {
+        "decision": "slow",
+        "reasonCodes": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "VERIFICATION_PENDING",
+          "SECOND_REVIEW_REQUIRED",
+          "SECOND_OWNER_REQUIRED_BUT_MISSING",
+          "COMMIT_BOUNDARY_HOLD"
+        ],
+        "explanation": "The tone is warm, but the action changes a payout destination and cannot proceed until independent verification and required review complete. A primary owner exists, but the second required owner is not yet bound.",
+        "requiredNextSteps": [
+          "verify bank-change request through a trusted system of record or independent callback",
+          "route to required reviewer",
+          "separate message tone from payment-routing risk"
+        ],
+        "ownerBinding": {
+          "bindingState": "bound_primary_pending_second_review",
+          "actorId": "ap_clerk_01",
+          "actorType": "operator",
+          "commitRole": "human_operator",
+          "authorityClass": "human_operator"
+        },
+        "ownerAcknowledgement": true,
+        "commitState": "hold"
+      },
+      "groundTruth": {
+        "expectedDecision": "slow",
+        "mustIncludeReasonCodes": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "SECOND_REVIEW_REQUIRED"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW",
+          "OWNERSHIP_MISSING"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_friendly_bank_change_001",
+        "traceId": "trc_friendly_bank_change_001",
+        "sourceSystem": "email",
+        "adapterType": "mail_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_friendly_bank_change_001",
+        "payloadHash": "3ed82ca7f36ea00a091496d2d5e58887ed6c68a171319da5151e5ca4625cd44a",
+        "dedupeKey": "email:friendly_bank_change_001"
+      },
+      "trustContext": {
+        "authenticationState": "partial",
+        "authorizationState": "verified",
+        "identityProofingMethod": "known_callback_to_system_of_record",
+        "sourceTrustLevel": "elevated_review",
+        "signatureState": "missing",
+        "transportIntegrity": "external_standard_tls"
+      },
+      "integrationContext": {
+        "inboundAdapter": "mail_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.2"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": true,
+        "idempotencyKey": "idem_friendly_bank_change_001",
+        "duplicateCheckRequired": true,
+        "duplicateState": "new",
+        "priorDecisionReuse": "return_cached_decision_if_duplicate",
+        "replayWindowHours": 72
+      },
+      "auditRecord": {
+        "eventId": "evt_friendly_bank_change_001",
+        "traceId": "trc_friendly_bank_change_001",
+        "decision": "slow",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
+        "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": true,
+        "ownerAcknowledged": true,
+        "ownerAuthorized": true,
+        "secondOwnerRequired": true,
+        "secondOwnerBound": false,
+        "executionEligible": false
+      }
+    },
+    {
+      "caseId": "ownership_self_approval_001",
+      "title": "Formal workflow where the same actor tries to approve a high-risk payout they initiated",
+      "packetType": "ownership_enforcement",
+      "input": {
+        "sourceType": "workflow_event",
+        "channel": "decision_prompt",
+        "content": "Approve this high-value payout now.",
+        "contextNotes": [
+          "same operator created and is attempting to approve",
+          "policy requires second review"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": false,
+          "types": [],
+          "strength": "none",
+          "evidence": []
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "explicit",
+          "targetAction": "approve",
+          "actionCount": 1,
+          "deferredRisk": false,
+          "evidence": [
+            "Approve this high-value payout now"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "high",
+          "domains": [
+            "financial",
+            "compliance"
+          ],
+          "recoveryDifficulty": "hard",
+          "irreversible": false,
+          "exposureLevel": "significant"
+        },
+        "authorityProfile": {
+          "present": true,
+          "type": "formal",
+          "strength": "moderate",
+          "evidence": [
+            "workflow approval request",
+            "policy requires second review"
+          ]
+        },
+        "tempoProfile": {
+          "urgencyLevel": "explicit",
+          "timeConstraint": "soft",
+          "cooldownRecommended": true,
+          "evidence": [
+            "now"
+          ]
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "clear",
+          "verificationState": "verified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "operator",
+        "actorId": "op_123",
+        "explicit": true,
+        "verified": true,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": true,
+        "secondReviewRequired": true,
+        "authorized": true,
+        "acknowledged": true,
+        "commitRole": "human_operator",
+        "ownershipMode": "dual_control",
+        "bindingState": "bound_but_policy_blocked",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": "human_operator"
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 0,
+        "actionScore": 3,
+        "consequenceScore": 3,
+        "authorityScore": 2,
+        "tempoScore": 1,
+        "ownershipScore": 1,
+        "mechanicalTriggers": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "AUTHORITY_FORMAL",
+          "SELF_APPROVAL_BLOCKED",
+          "SECOND_REVIEW_REQUIRED"
+        ]
+      },
+      "mfosGate": {
+        "decision": "block",
+        "reasonCodes": [
+          "SELF_APPROVAL_BLOCKED",
+          "SECOND_REVIEW_REQUIRED",
+          "CONSEQUENCE_HIGH",
+          "AUTHORITY_FORMAL",
+          "SECOND_OWNER_REQUIRED_BUT_MISSING"
+        ],
+        "explanation": "The actor is present and verified, but they cannot approve their own high-risk action where independent review is required. Ownership alone is not enough because the second independent owner is missing.",
+        "requiredNextSteps": [
+          "route to an independent reviewer",
+          "record initiator and reviewer separately",
+          "prevent self-approval bypass at execution time"
+        ],
+        "ownerBinding": {
+          "bindingState": "bound_but_policy_blocked",
+          "actorId": "op_123",
+          "actorType": "operator",
+          "commitRole": "human_operator",
+          "authorityClass": "human_operator"
+        },
+        "ownerAcknowledgement": true,
+        "commitState": "hold"
+      },
+      "groundTruth": {
+        "expectedDecision": "block",
+        "mustIncludeReasonCodes": [
+          "SELF_APPROVAL_BLOCKED",
+          "SECOND_REVIEW_REQUIRED"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "OWNERSHIP_MISSING",
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_ownership_self_approval_001",
+        "traceId": "trc_ownership_self_approval_001",
+        "sourceSystem": "workflow_event",
+        "adapterType": "workflow_api_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_ownership_self_approval_001",
+        "payloadHash": "096635dbeef8cc43cda6d5fe7fbf6b3d1cb0cf67decdf648c02281ea05748189",
+        "dedupeKey": "workflow_event:ownership_self_approval_001"
+      },
+      "trustContext": {
+        "authenticationState": "verified",
+        "authorizationState": "verified",
+        "identityProofingMethod": "signed_internal_workflow_event",
+        "sourceTrustLevel": "high",
+        "signatureState": "verified",
+        "transportIntegrity": "trusted_internal_tls"
+      },
+      "integrationContext": {
+        "inboundAdapter": "workflow_api_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.2"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": true,
+        "idempotencyKey": "idem_ownership_self_approval_001",
+        "duplicateCheckRequired": true,
+        "duplicateState": "new",
+        "priorDecisionReuse": "return_cached_decision_if_duplicate",
+        "replayWindowHours": 72
+      },
+      "auditRecord": {
+        "eventId": "evt_ownership_self_approval_001",
+        "traceId": "trc_ownership_self_approval_001",
+        "decision": "block",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
+        "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": true,
+        "ownerAcknowledged": true,
+        "ownerAuthorized": true,
+        "secondOwnerRequired": true,
+        "secondOwnerBound": false,
+        "executionEligible": false
+      }
+    },
+    {
+      "caseId": "credential_request_low_trust_001",
+      "title": "Credential reset request arrives through a low-trust external message",
+      "packetType": "security_enforcement",
+      "input": {
+        "sourceType": "email",
+        "channel": "inbound_message",
+        "content": "Security needs you to confirm your admin password today so we can keep your access active. Reply with your current password and MFA code now.",
+        "contextNotes": [
+          "credential request",
+          "external message",
+          "no approved secret exchange path",
+          "sender identity unverified"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": true,
+          "types": [
+            "urgency",
+            "authority_mimicry"
+          ],
+          "strength": "strong",
+          "evidence": [
+            "today",
+            "now",
+            "keep your access active",
+            "Security needs you"
+          ]
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "explicit",
+          "targetAction": "share_credentials",
+          "actionCount": 1,
+          "deferredRisk": false,
+          "evidence": [
+            "Reply with your current password and MFA code now"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "high",
+          "domains": [
+            "identity",
+            "security",
+            "systems"
+          ],
+          "recoveryDifficulty": "hard",
+          "irreversible": true,
+          "exposureLevel": "significant"
+        },
+        "authorityProfile": {
+          "present": true,
+          "type": "coercive",
+          "strength": "strong",
+          "evidence": [
+            "Security needs you",
+            "keep your access active"
+          ]
+        },
+        "tempoProfile": {
+          "urgencyLevel": "explicit",
+          "timeConstraint": "hard",
+          "cooldownRecommended": true,
+          "evidence": [
+            "today",
+            "now"
+          ]
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "unclear",
+          "verificationState": "unverified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "user",
+        "actorId": "local_user",
+        "explicit": false,
+        "verified": false,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": false,
+        "authorized": false,
+        "acknowledged": false,
+        "commitRole": "human_operator",
+        "ownershipMode": "single_owner",
+        "bindingState": "missing",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": "human_operator"
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 3,
+        "actionScore": 3,
+        "consequenceScore": 3,
+        "authorityScore": 3,
+        "tempoScore": 3,
+        "ownershipScore": 0,
+        "mechanicalTriggers": [
+          "PRESSURE_STRONG",
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "AUTHORITY_COERCIVE",
+          "AUTHENTICATION_FAILED",
+          "TRUST_CONTEXT_LOW",
+          "TRANSPORT_UNTRUSTED"
+        ]
+      },
+      "mfosGate": {
+        "decision": "block",
+        "reasonCodes": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "AUTHENTICATION_FAILED",
+          "TRUST_CONTEXT_LOW",
+          "TRANSPORT_UNTRUSTED",
+          "MISSING_OWNER_AT_COMMIT_BOUNDARY"
+        ],
+        "explanation": "Credential disclosure is requested through an untrusted external channel with no approved secret exchange path and no verified requester.",
+        "requiredNextSteps": [
+          "do not send credentials or MFA codes",
+          "verify with the security team through an approved internal channel",
+          "restrict credential exchange to approved secret reset workflow"
+        ],
+        "ownerBinding": {
+          "bindingState": "missing",
+          "actorId": "local_user",
+          "actorType": "user",
+          "commitRole": "human_operator",
+          "authorityClass": "human_operator"
+        },
+        "ownerAcknowledgement": false,
+        "commitState": "hold"
+      },
+      "groundTruth": {
+        "expectedDecision": "block",
+        "mustIncludeReasonCodes": [
+          "AUTHENTICATION_FAILED",
+          "TRANSPORT_UNTRUSTED"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_credential_request_low_trust_001",
+        "traceId": "trc_credential_request_low_trust_001",
+        "sourceSystem": "email",
+        "adapterType": "mail_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_credential_request_low_trust_001",
+        "payloadHash": "4980f774b0e0988c2b7617c92af5bcbdc65bc9ec6acfa8a5525ad27ad6d26cd1",
+        "dedupeKey": "email:credential_request_low_trust_001"
+      },
+      "trustContext": {
+        "authenticationState": "failed",
+        "authorizationState": "not_required",
+        "identityProofingMethod": "not_applicable",
+        "sourceTrustLevel": "low",
+        "signatureState": "not_required",
+        "transportIntegrity": "external_untrusted"
+      },
+      "integrationContext": {
+        "inboundAdapter": "mail_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.2"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 100,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": false,
+        "idempotencyKey": null,
+        "duplicateCheckRequired": false,
+        "duplicateState": "new",
+        "priorDecisionReuse": "not_applicable",
+        "replayWindowHours": 0
+      },
+      "auditRecord": {
+        "eventId": "evt_credential_request_low_trust_001",
+        "traceId": "trc_credential_request_low_trust_001",
+        "decision": "block",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
+        "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": false,
+        "ownerAcknowledged": false,
+        "ownerAuthorized": false,
+        "secondOwnerRequired": false,
+        "secondOwnerBound": false,
+        "executionEligible": false
+      }
+    },
+    {
+      "caseId": "verified_internal_api_change_001",
+      "title": "Signed internal API request performs a low-risk metadata change under verified identity",
+      "packetType": "interoperability",
+      "input": {
+        "sourceType": "api_request",
+        "channel": "service_call",
+        "content": "PATCH /customer/123/preferences {\"paperlessStatement\": true}",
+        "contextNotes": [
+          "mTLS service identity verified",
+          "authorized service account",
+          "trace identifiers present",
+          "low-risk reversible preference change"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": false,
+          "types": [],
+          "strength": "none",
+          "evidence": []
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "explicit",
+          "targetAction": "update_preference",
+          "actionCount": 1,
+          "deferredRisk": false,
+          "evidence": [
+            "PATCH preferences request"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "low",
+          "domains": [
+            "workflow"
+          ],
+          "recoveryDifficulty": "easy",
+          "irreversible": false,
+          "exposureLevel": "minimal"
+        },
+        "authorityProfile": {
+          "present": true,
+          "type": "formal",
+          "strength": "moderate",
+          "evidence": [
+            "service account request"
+          ]
+        },
+        "tempoProfile": {
+          "urgencyLevel": "none",
+          "timeConstraint": "none",
+          "cooldownRecommended": false,
+          "evidence": []
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "clear",
+          "verificationState": "verified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "service_account",
+        "actorId": "svc_customer_pref",
+        "explicit": true,
+        "verified": true,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": false,
+        "authorized": true,
+        "acknowledged": true,
+        "commitRole": "authorized_service_owner",
+        "ownershipMode": "single_owner",
+        "bindingState": "bound_verified",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": "service_account"
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 0,
+        "actionScore": 3,
+        "consequenceScore": 0,
+        "authorityScore": 2,
+        "tempoScore": 0,
+        "ownershipScore": 2,
+        "mechanicalTriggers": [
+          "ACTION_EXPLICIT",
+          "AUTHORITY_FORMAL"
+        ]
+      },
+      "mfosGate": {
+        "decision": "allow",
+        "reasonCodes": [
+          "ACTION_EXPLICIT",
+          "OWNERSHIP_REQUIRED_IMPLIES_COMMIT_OWNER_VERIFIED"
+        ],
+        "explanation": "The request is explicit but low-risk, reversible, fully authenticated, authorized, traceable, and permitted under the adapter contract. A named verified service owner is bound to the change.",
+        "requiredNextSteps": [],
+        "ownerBinding": {
+          "bindingState": "bound_verified",
+          "actorId": "svc_customer_pref",
+          "actorType": "service_account",
+          "commitRole": "authorized_service_owner",
+          "authorityClass": "service_account"
+        },
+        "ownerAcknowledgement": true,
+        "commitState": "eligible"
+      },
+      "groundTruth": {
+        "expectedDecision": "allow",
+        "mustIncludeReasonCodes": [
+          "ACTION_EXPLICIT"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "AUTHENTICATION_FAILED",
+          "REPLAY_DETECTED",
+          "IDEMPOTENCY_KEY_MISSING"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_verified_internal_api_change_001",
+        "traceId": "trc_verified_internal_api_change_001",
+        "sourceSystem": "api_request",
+        "adapterType": "api_gateway_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_verified_internal_api_change_001",
+        "payloadHash": "975e4f11ce9754d6a2d8a51ddc2095dabfd48d3e5339713ef92164604c267023",
+        "dedupeKey": "api_request:verified_internal_api_change_001"
+      },
+      "trustContext": {
+        "authenticationState": "verified",
+        "authorizationState": "verified",
+        "identityProofingMethod": "mutual_tls_service_identity",
+        "sourceTrustLevel": "high",
+        "signatureState": "verified",
+        "transportIntegrity": "trusted_internal_tls"
+      },
+      "integrationContext": {
+        "inboundAdapter": "api_gateway_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.2"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": true,
+        "idempotencyKey": "idem_verified_internal_api_change_001",
+        "duplicateCheckRequired": true,
+        "duplicateState": "new",
+        "priorDecisionReuse": "return_cached_decision_if_duplicate",
+        "replayWindowHours": 24
+      },
+      "auditRecord": {
+        "eventId": "evt_verified_internal_api_change_001",
+        "traceId": "trc_verified_internal_api_change_001",
+        "decision": "allow",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
+        "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": true,
+        "ownerAcknowledged": true,
+        "ownerAuthorized": true,
+        "secondOwnerRequired": false,
+        "secondOwnerBound": false,
+        "executionEligible": true
+      }
+    },
+    {
+      "caseId": "duplicate_payout_replay_001",
+      "title": "Previously committed payout event reappears as a replay",
+      "packetType": "idempotency",
+      "input": {
+        "sourceType": "workflow_event",
+        "channel": "decision_prompt",
+        "content": "Approve payout batch B-7782 for release.",
+        "contextNotes": [
+          "same eventId already committed",
+          "same payloadHash seen after commit",
+          "no new authorization context"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": false,
+          "types": [],
+          "strength": "none",
+          "evidence": []
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "explicit",
+          "targetAction": "approve",
+          "actionCount": 1,
+          "deferredRisk": false,
+          "evidence": [
+            "Approve payout batch B-7782 for release"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "high",
+          "domains": [
+            "financial",
+            "compliance"
+          ],
+          "recoveryDifficulty": "hard",
+          "irreversible": false,
+          "exposureLevel": "significant"
+        },
+        "authorityProfile": {
+          "present": true,
+          "type": "formal",
+          "strength": "moderate",
+          "evidence": [
+            "workflow approval request"
+          ]
+        },
+        "tempoProfile": {
+          "urgencyLevel": "none",
+          "timeConstraint": "none",
+          "cooldownRecommended": false,
+          "evidence": []
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "clear",
+          "verificationState": "verified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "operator",
+        "actorId": "op_991",
+        "explicit": true,
+        "verified": true,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": false,
+        "authorized": true,
+        "acknowledged": true,
+        "commitRole": "human_operator",
+        "ownershipMode": "single_owner",
+        "bindingState": "bound_verified",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": "human_operator"
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 0,
+        "actionScore": 3,
+        "consequenceScore": 3,
+        "authorityScore": 2,
+        "tempoScore": 0,
+        "ownershipScore": 2,
+        "mechanicalTriggers": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "AUTHORITY_FORMAL",
+          "EVENT_DUPLICATE",
+          "REPLAY_DETECTED"
+        ]
+      },
+      "mfosGate": {
+        "decision": "block",
+        "reasonCodes": [
+          "REPLAY_DETECTED",
+          "EVENT_DUPLICATE",
+          "CONSEQUENCE_HIGH"
+        ],
+        "explanation": "A committed payout event reappeared without new authorization. The system must not re-execute side effects on replay.",
+        "requiredNextSteps": [
+          "return prior decision record",
+          "suppress payout re-execution",
+          "investigate replay source"
+        ],
+        "ownerBinding": {
+          "bindingState": "bound_verified",
+          "actorId": "op_991",
+          "actorType": "operator",
+          "commitRole": "human_operator",
+          "authorityClass": "human_operator"
+        },
+        "ownerAcknowledgement": true,
+        "commitState": "hold"
+      },
+      "groundTruth": {
+        "expectedDecision": "block",
+        "mustIncludeReasonCodes": [
+          "REPLAY_DETECTED",
+          "EVENT_DUPLICATE"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_duplicate_payout_replay_001",
+        "traceId": "trc_duplicate_payout_replay_001",
+        "sourceSystem": "workflow_event",
+        "adapterType": "workflow_api_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_duplicate_payout_replay_001",
+        "payloadHash": "df3b997749b86cb45565ef5d0186949d970fba8cd72ba7459c75bd9d5f691769",
+        "dedupeKey": "workflow_event:duplicate_payout_replay_001"
+      },
+      "trustContext": {
+        "authenticationState": "verified",
+        "authorizationState": "verified",
+        "identityProofingMethod": "signed_internal_workflow_event",
+        "sourceTrustLevel": "high",
+        "signatureState": "verified",
+        "transportIntegrity": "trusted_internal_tls"
+      },
+      "integrationContext": {
+        "inboundAdapter": "workflow_api_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.2"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": true,
+        "idempotencyKey": "idem_duplicate_payout_replay_001",
+        "duplicateCheckRequired": true,
+        "duplicateState": "replay_after_commit",
+        "priorDecisionReuse": "return_cached_decision_if_duplicate",
+        "replayWindowHours": 72
+      },
+      "auditRecord": {
+        "eventId": "evt_duplicate_payout_replay_001",
+        "traceId": "trc_duplicate_payout_replay_001",
+        "decision": "block",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
+        "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": true,
+        "ownerAcknowledged": true,
+        "ownerAuthorized": true,
+        "secondOwnerRequired": false,
+        "secondOwnerBound": false,
+        "executionEligible": false
+      }
+    },
+    {
+      "caseId": "mutation_missing_idempotency_001",
+      "title": "High-risk API mutation arrives without idempotency controls",
+      "packetType": "runtime_safety",
+      "input": {
+        "sourceType": "api_request",
+        "channel": "service_call",
+        "content": "POST /vendor/payment-routing/update {\"vendorId\":\"V-19\",\"newAccount\":\"883144\"}",
+        "contextNotes": [
+          "authenticated service",
+          "mutating request",
+          "missing idempotency key",
+          "bank-routing side effect"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": false,
+          "types": [],
+          "strength": "none",
+          "evidence": []
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "explicit",
+          "targetAction": "approve",
+          "actionCount": 1,
+          "deferredRisk": false,
+          "evidence": [
+            "payment-routing update request"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "high",
+          "domains": [
+            "financial",
+            "systems"
+          ],
+          "recoveryDifficulty": "hard",
+          "irreversible": true,
+          "exposureLevel": "significant"
+        },
+        "authorityProfile": {
+          "present": true,
+          "type": "formal",
+          "strength": "moderate",
+          "evidence": [
+            "service call"
+          ]
+        },
+        "tempoProfile": {
+          "urgencyLevel": "none",
+          "timeConstraint": "none",
+          "cooldownRecommended": true,
+          "evidence": []
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "clear",
+          "verificationState": "verified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "service_account",
+        "actorId": "svc_vendor_ops",
+        "explicit": true,
+        "verified": true,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": true,
+        "authorized": true,
+        "acknowledged": true,
+        "commitRole": "authorized_service_owner",
+        "ownershipMode": "dual_control",
+        "bindingState": "bound_primary_pending_second_review",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": "service_account"
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 0,
+        "actionScore": 3,
+        "consequenceScore": 3,
+        "authorityScore": 2,
+        "tempoScore": 0,
+        "ownershipScore": 2,
+        "mechanicalTriggers": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "AUTHORITY_FORMAL",
+          "IDEMPOTENCY_KEY_MISSING",
+          "SECOND_REVIEW_REQUIRED"
+        ]
+      },
+      "mfosGate": {
+        "decision": "block",
+        "reasonCodes": [
+          "IDEMPOTENCY_KEY_MISSING",
+          "CONSEQUENCE_HIGH",
+          "SECOND_REVIEW_REQUIRED",
+          "SECOND_OWNER_REQUIRED_BUT_MISSING"
+        ],
+        "explanation": "The request is authenticated, but a high-risk mutation cannot proceed without idempotency controls and the required review path. Even with a primary owner, the action cannot cross the boundary without the second required owner and replay-safe controls.",
+        "requiredNextSteps": [
+          "resubmit with valid idempotency key and dedupe metadata",
+          "route through independent verification workflow",
+          "do not mutate payment routing until controls are present"
+        ],
+        "ownerBinding": {
+          "bindingState": "bound_primary_pending_second_review",
+          "actorId": "svc_vendor_ops",
+          "actorType": "service_account",
+          "commitRole": "authorized_service_owner",
+          "authorityClass": "service_account"
+        },
+        "ownerAcknowledgement": true,
+        "commitState": "hold"
+      },
+      "groundTruth": {
+        "expectedDecision": "block",
+        "mustIncludeReasonCodes": [
+          "IDEMPOTENCY_KEY_MISSING"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "AUTHENTICATION_FAILED",
+          "ACTION_NONE"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_mutation_missing_idempotency_001",
+        "traceId": "trc_mutation_missing_idempotency_001",
+        "sourceSystem": "api_request",
+        "adapterType": "api_gateway_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_mutation_missing_idempotency_001",
+        "payloadHash": "492d8901ef699a3eb97847a8556e728b698227896d87cc3d59fdd2bf003a26dd",
+        "dedupeKey": null
+      },
+      "trustContext": {
+        "authenticationState": "verified",
+        "authorizationState": "verified",
+        "identityProofingMethod": "mutual_tls_service_identity",
+        "sourceTrustLevel": "high",
+        "signatureState": "verified",
+        "transportIntegrity": "trusted_internal_tls"
+      },
+      "integrationContext": {
+        "inboundAdapter": "api_gateway_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local workflow without changing MFOS semantics",
+        "policyVersion": "1.4.2"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": true,
+        "idempotencyKey": null,
+        "duplicateCheckRequired": true,
+        "duplicateState": "new",
+        "priorDecisionReuse": "not_possible_without_idempotency_key",
+        "replayWindowHours": 72
+      },
+      "auditRecord": {
+        "eventId": "evt_mutation_missing_idempotency_001",
+        "traceId": "trc_mutation_missing_idempotency_001",
+        "decision": "block",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
+        "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": true,
+        "ownerAcknowledged": true,
+        "ownerAuthorized": true,
+        "secondOwnerRequired": true,
+        "secondOwnerBound": false,
+        "executionEligible": false
+      }
+    },
+    {
+      "caseId": "aviation_route_change_owner_missing_001",
+      "title": "Aviation route-change recommendation reaches the boundary without captain ownership and required clearance chain",
+      "packetType": "ownership_enforcement",
+      "input": {
+        "sourceType": "workflow_event",
+        "channel": "decision_prompt",
+        "content": "AI weather avoidance system recommends a 20 NM south reroute around convective activity. Commit amended route now.",
+        "contextNotes": [
+          "safety-significant route change",
+          "captain not yet bound as owner",
+          "dispatch concurrence pending",
+          "ATC clearance path still open"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": true,
+          "types": [
+            "urgency"
+          ],
+          "strength": "moderate",
+          "evidence": [
+            "now",
+            "convective activity"
+          ]
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "explicit",
+          "targetAction": "approve",
+          "actionCount": 1,
+          "deferredRisk": false,
+          "evidence": [
+            "Commit amended route now"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "high",
+          "domains": [
+            "safety",
+            "operations"
+          ],
+          "recoveryDifficulty": "hard",
+          "irreversible": false,
+          "exposureLevel": "significant"
+        },
+        "authorityProfile": {
+          "present": true,
+          "type": "formal",
+          "strength": "moderate",
+          "evidence": [
+            "operational route-change recommendation"
+          ]
+        },
+        "tempoProfile": {
+          "urgencyLevel": "explicit",
+          "timeConstraint": "soft",
+          "cooldownRecommended": true,
+          "evidence": [
+            "now"
+          ]
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "clear",
+          "verificationState": "verified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "pilot",
+        "actorId": "captain_204",
+        "explicit": false,
+        "verified": true,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": true,
+        "authorized": false,
+        "acknowledged": false,
+        "commitRole": "flight_captain",
+        "ownershipMode": "dual_control",
+        "bindingState": "missing",
+        "secondActorId": "dispatcher_77",
+        "secondActorVerified": false,
+        "authorityClass": "flight_authority"
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 2,
+        "actionScore": 3,
+        "consequenceScore": 3,
+        "authorityScore": 2,
+        "tempoScore": 1,
+        "ownershipScore": 0,
+        "mechanicalTriggers": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "MISSING_OWNER_AT_COMMIT_BOUNDARY",
+          "SECOND_OWNER_REQUIRED_BUT_MISSING",
+          "COMMIT_BOUNDARY_HOLD"
+        ]
+      },
+      "mfosGate": {
+        "decision": "slow",
+        "reasonCodes": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "MISSING_OWNER_AT_COMMIT_BOUNDARY",
+          "SECOND_OWNER_REQUIRED_BUT_MISSING",
+          "COMMIT_BOUNDARY_HOLD"
+        ],
+        "explanation": "The reroute recommendation is legitimate, but it cannot cross the boundary until the captain is explicitly bound and the required operational clearance chain is satisfied.",
+        "requiredNextSteps": [
+          "bind captain as explicit owner",
+          "record dispatcher concurrence if required by policy",
+          "obtain required operational clearance before execution"
+        ],
+        "ownerBinding": {
+          "bindingState": "missing",
+          "actorId": "captain_204",
+          "actorType": "pilot",
+          "commitRole": "flight_captain",
+          "authorityClass": "flight_authority"
+        },
+        "ownerAcknowledgement": false,
+        "commitState": "hold"
+      },
+      "groundTruth": {
+        "expectedDecision": "slow",
+        "mustIncludeReasonCodes": [
+          "MISSING_OWNER_AT_COMMIT_BOUNDARY",
+          "SECOND_OWNER_REQUIRED_BUT_MISSING"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_aviation_route_change_owner_missing_001",
+        "traceId": "trc_aviation_route_change_owner_missing_001",
+        "sourceSystem": "flight_ops",
+        "adapterType": "flight_decision_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_aviation_route_change_owner_missing_001",
+        "payloadHash": "47b5a5f13b8bc1df5b421cb1d71afe72e3fa1b3ca4f7334e1e7c0ce2aa5ae700",
+        "dedupeKey": "flight_ops:aviation_route_change_owner_missing_001"
+      },
+      "trustContext": {
+        "authenticationState": "verified",
+        "authorizationState": "verified",
+        "identityProofingMethod": "signed_internal_workflow_event",
+        "sourceTrustLevel": "high",
+        "signatureState": "verified",
+        "transportIntegrity": "trusted_internal_tls"
+      },
+      "integrationContext": {
+        "inboundAdapter": "flight_decision_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local flight workflow without changing MFOS semantics",
+        "policyVersion": "1.4.2"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": true,
+        "idempotencyKey": "idem_aviation_route_change_owner_missing_001",
+        "duplicateCheckRequired": true,
+        "duplicateState": "new",
+        "priorDecisionReuse": "return_cached_decision_if_duplicate",
+        "replayWindowHours": 24
+      },
+      "auditRecord": {
+        "eventId": "evt_aviation_route_change_owner_missing_001",
+        "traceId": "trc_aviation_route_change_owner_missing_001",
+        "decision": "slow",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
+        "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": false,
+        "ownerAcknowledged": false,
+        "ownerAuthorized": false,
+        "secondOwnerRequired": true,
+        "secondOwnerBound": false,
+        "executionEligible": false
+      }
+    },
+    {
+      "caseId": "medical_medication_adjustment_ack_missing_001",
+      "title": "Clinical medication recommendation cannot execute until a licensed clinician owns and acknowledges it",
+      "packetType": "ownership_enforcement",
+      "input": {
+        "sourceType": "workflow_event",
+        "channel": "decision_prompt",
+        "content": "AI dosing assistant recommends increasing insulin infusion from 2 to 4 units/hour due to rising glucose trend. Apply now.",
+        "contextNotes": [
+          "direct patient-care consequence",
+          "licensed clinician not yet acknowledged",
+          "high-consequence medication adjustment"
+        ]
+      },
+      "classification": {
+        "pressureProfile": {
+          "present": true,
+          "types": [
+            "urgency"
+          ],
+          "strength": "moderate",
+          "evidence": [
+            "Apply now",
+            "rising glucose trend"
+          ]
+        },
+        "actionIntent": {
+          "present": true,
+          "mode": "explicit",
+          "targetAction": "approve",
+          "actionCount": 1,
+          "deferredRisk": false,
+          "evidence": [
+            "Apply now"
+          ]
+        },
+        "consequenceProfile": {
+          "severity": "high",
+          "domains": [
+            "clinical",
+            "safety"
+          ],
+          "recoveryDifficulty": "hard",
+          "irreversible": false,
+          "exposureLevel": "significant"
+        },
+        "authorityProfile": {
+          "present": true,
+          "type": "formal",
+          "strength": "moderate",
+          "evidence": [
+            "clinical dosing recommendation"
+          ]
+        },
+        "tempoProfile": {
+          "urgencyLevel": "explicit",
+          "timeConstraint": "soft",
+          "cooldownRecommended": true,
+          "evidence": [
+            "Apply now"
+          ]
+        },
+        "clarityProfile": {
+          "requestClarity": "clear",
+          "identityClarity": "clear",
+          "verificationState": "verified",
+          "ambiguityLevel": "low"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "actorType": "clinician",
+        "actorId": "rn_1127",
+        "explicit": true,
+        "verified": true,
+        "delegationAllowed": false,
+        "selfApprovalBlocked": false,
+        "secondReviewRequired": false,
+        "authorized": true,
+        "acknowledged": false,
+        "commitRole": "licensed_clinician",
+        "ownershipMode": "single_owner",
+        "bindingState": "bound_verified",
+        "secondActorId": null,
+        "secondActorVerified": false,
+        "authorityClass": "clinical_licensed"
+      },
+      "thresholdEvaluation": {
+        "pressureScore": 2,
+        "actionScore": 3,
+        "consequenceScore": 3,
+        "authorityScore": 2,
+        "tempoScore": 1,
+        "ownershipScore": 1,
+        "mechanicalTriggers": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "OWNER_ACKNOWLEDGEMENT_REQUIRED",
+          "COMMIT_BOUNDARY_HOLD"
+        ]
+      },
+      "mfosGate": {
+        "decision": "slow",
+        "reasonCodes": [
+          "ACTION_EXPLICIT",
+          "CONSEQUENCE_HIGH",
+          "OWNER_ACKNOWLEDGEMENT_REQUIRED",
+          "COMMIT_BOUNDARY_HOLD"
+        ],
+        "explanation": "A clinician is identified, but the medication change cannot cross the boundary until that licensed owner explicitly acknowledges responsibility for execution.",
+        "requiredNextSteps": [
+          "capture clinician acknowledgement",
+          "record owner identity in the order path",
+          "then permit execution through the approved clinical workflow"
+        ],
+        "ownerBinding": {
+          "bindingState": "bound_verified",
+          "actorId": "rn_1127",
+          "actorType": "clinician",
+          "commitRole": "licensed_clinician",
+          "authorityClass": "clinical_licensed"
+        },
+        "ownerAcknowledgement": false,
+        "commitState": "hold"
+      },
+      "groundTruth": {
+        "expectedDecision": "slow",
+        "mustIncludeReasonCodes": [
+          "OWNER_ACKNOWLEDGEMENT_REQUIRED",
+          "COMMIT_BOUNDARY_HOLD"
+        ],
+        "mustNotIncludeReasonCodes": [
+          "ACTION_NONE",
+          "CONSEQUENCE_LOW"
+        ]
+      },
+      "eventEnvelope": {
+        "eventId": "evt_medical_medication_adjustment_ack_missing_001",
+        "traceId": "trc_medical_medication_adjustment_ack_missing_001",
+        "sourceSystem": "clinical_cdss",
+        "adapterType": "clinical_decision_adapter",
+        "receivedAt": "2026-04-01T12:00:00Z",
+        "occurredAt": "2026-04-01T12:00:00Z",
+        "correlationId": "corr_medical_medication_adjustment_ack_missing_001",
+        "payloadHash": "d1ae1a2caa45278cedac1117d7d0b4c580f2dabf59884b8f26bb91a549f9f857",
+        "dedupeKey": "clinical_cdss:medical_medication_adjustment_ack_missing_001"
+      },
+      "trustContext": {
+        "authenticationState": "verified",
+        "authorizationState": "verified",
+        "identityProofingMethod": "directory_session",
+        "sourceTrustLevel": "high",
+        "signatureState": "verified",
+        "transportIntegrity": "trusted_internal_tls"
+      },
+      "integrationContext": {
+        "inboundAdapter": "clinical_decision_adapter",
+        "outboundTargets": [
+          "audit_log"
+        ],
+        "decisionBinding": "map allow/slow/block to local clinical workflow without changing MFOS semantics",
+        "policyVersion": "1.4.2"
+      },
+      "processingProfile": {
+        "executionPath": "inline_sync",
+        "latencyClass": "interactive",
+        "targetDecisionLatencyMs": 150,
+        "cacheableDecision": true,
+        "sideEffectExecution": "externalized",
+        "escalateToAsyncOnTimeout": true
+      },
+      "idempotencyProfile": {
+        "idempotencyRequired": true,
+        "idempotencyKey": "idem_medical_medication_adjustment_ack_missing_001",
+        "duplicateCheckRequired": true,
+        "duplicateState": "new",
+        "priorDecisionReuse": "return_cached_decision_if_duplicate",
+        "replayWindowHours": 24
+      },
+      "auditRecord": {
+        "eventId": "evt_medical_medication_adjustment_ack_missing_001",
+        "traceId": "trc_medical_medication_adjustment_ack_missing_001",
+        "decision": "slow",
+        "decisionVersion": "1.4.2",
+        "policyVersion": "1.4.2",
+        "mustPersist": true
+      },
+      "ownershipCommit": {
+        "commitBoundaryReached": true,
+        "ownerRequiredAtCommit": true,
+        "ownerBound": true,
+        "ownerAcknowledged": false,
+        "ownerAuthorized": true,
+        "secondOwnerRequired": false,
+        "secondOwnerBound": false,
+        "executionEligible": false
+      }
+    }
+  ],
+  "caseCount": 12,
+  "runtimeContract": {
+    "coreExecutionModel": "stateless_deterministic_gate",
+    "designIntent": "Run classification and gate evaluation inline for low-latency decisions while keeping irreversible side effects outside the core gate.",
+    "processingPaths": {
+      "inlineSync": {
+        "purpose": "Interactive decisions in email, chat, workflow prompts, and APIs.",
+        "targetP95DecisionLatencyMs": 150,
+        "targetP99DecisionLatencyMs": 300,
+        "maxPayloadKB": 64,
+        "behaviorOnBudgetExceed": "slow_and_route_for_async_review"
+      },
+      "asyncEscalation": {
+        "purpose": "Large payloads, attachment-heavy events, batch imports, or degraded downstream conditions.",
+        "queueRequired": true,
+        "targetAckMs": 50,
+        "decisionSLOSeconds": 30,
+        "behavior": "persist_event_then_evaluate_without_losing_traceability"
+      }
+    },
+    "scalabilityProfile": {
+      "horizontalScaling": true,
+      "stateHandling": "Core gate remains stateless. State is externalized to audit, identity, and idempotency stores.",
+      "throughputExpectation": {
+        "baselineEventsPerSecondPerNode": 200,
+        "burstEventsPerSecondPerNode": 1000,
+        "note": "Throughput targets assume pre-normalized payloads and externalized persistence."
+      },
+      "backpressurePolicy": [
+        "shed non-critical enrichment before core gate evaluation",
+        "route over-budget or degraded events to async queue",
+        "never bypass gate because of load"
+      ]
+    },
+    "resilienceRequirements": {
+      "failClosedOn": [
+        "high_risk_action_with_missing_identity",
+        "missing_idempotency_on_mutation",
+        "signature_invalid_on_trusted_required_channel",
+        "missing_owner_at_commit_boundary",
+        "unauthorized_owner_role_for_high_consequence_action",
+        "dual_control_required_but_second_owner_missing"
+      ],
+      "failOpenAllowedOn": [
+        "descriptive_or_educational_content_with_no_action"
+      ],
+      "degradationMode": "Preserve prior verified decision when duplicate is confirmed. Otherwise slow or block rather than guess."
+    },
+    "ownershipRequirement": {
+      "enforceAtCommitBoundary": true,
+      "allowRequiresBoundOwnerWhenOwnershipRequired": true,
+      "highConsequenceRequiresAcknowledgement": true,
+      "overrideRequiresRebinding": true,
+      "dualControlMayBeRequired": true,
+      "failClosedOn": [
+        "missing_owner_at_commit_boundary",
+        "owner_acknowledgement_required_but_absent",
+        "unauthorized_owner_role_for_high_consequence_action",
+        "dual_control_required_but_second_owner_missing"
+      ]
+    }
+  },
+  "securityEnforcement": {
+    "identityTrustModel": {
+      "authenticationStates": [
+        "not_applicable",
+        "partial",
+        "verified",
+        "failed"
+      ],
+      "authorizationStates": [
+        "not_required",
+        "partial",
+        "verified",
+        "failed"
+      ],
+      "trustedIdentityProofingMethods": [
+        "directory_session",
+        "federated_sso",
+        "mutual_tls_service_identity",
+        "known_callback_to_system_of_record",
+        "signed_internal_workflow_event"
+      ]
+    },
+    "requiredTrustChecks": {
+      "highRiskActionsMustVerify": [
+        "actor_identity",
+        "actor_authority",
+        "channel_trust",
+        "signature_or_independent_callback_when_policy_requires"
+      ],
+      "credentialRequestsMustVerify": [
+        "requesting_system_identity",
+        "approved_secret_exchange_path",
+        "transport_integrity"
+      ],
+      "externalFinancialChangesMustVerify": [
+        "independent_system_of_record_confirmation",
+        "second_review_if_policy_requires"
+      ]
+    },
+    "controlHooks": {
+      "authenticationHook": "Adapter validates session, token, certificate, or signed workflow identity before gate evaluation.",
+      "authorizationHook": "Adapter resolves whether the verified actor is permitted to request or approve the action.",
+      "trustValidationHook": "Adapter records signature state, transport integrity, and source trust level into trustContext.",
+      "secretHandlingHook": "Credential or token requests are blocked unless they occur in an approved secret exchange path."
+    }
+  },
+  "interoperabilityContract": {
+    "supportedSourceTypes": [
+      "email",
+      "sms",
+      "workflow_event",
+      "api_request",
+      "article",
+      "chat_message"
+    ],
+    "requiredEventEnvelopeFields": [
+      "eventId",
+      "traceId",
+      "sourceSystem",
+      "adapterType",
+      "receivedAt",
+      "payloadHash",
+      "dedupeKey"
+    ],
+    "requiredDecisionOutputFields": [
+      "decision",
+      "reasonCodes",
+      "explanation",
+      "requiredNextSteps",
+      "traceId",
+      "eventId",
+      "decisionVersion",
+      "policyVersion",
+      "ownerBinding",
+      "ownerAcknowledgement",
+      "commitState"
+    ],
+    "adapterResponsibilities": {
+      "normalize": "Convert channel-specific payloads into MFOS envelope and classification-ready content.",
+      "authenticate": "Attach verified identity and authorization results where available.",
+      "mapSideEffects": "Bind MFOS allow/slow/block results to local workflow actions without changing MFOS semantics.",
+      "emitAuditRecord": "Write canonical audit record with traceId, eventId, decision, and reasonCodes.",
+      "bindOwner": "Resolve and attach owner identity, authority class, acknowledgement state, and second-owner state before execution is permitted."
+    },
+    "reasonCodeMappingContract": {
+      "defaultSeverityBands": {
+        "allow": "info",
+        "slow": "warning",
+        "block": "critical"
+      },
+      "controlMappingExamples": {
+        "SELF_APPROVAL_BLOCKED": [
+          "segregation_of_duties",
+          "approval_control"
+        ],
+        "AUTHENTICATION_FAILED": [
+          "identity_access_control"
+        ],
+        "REPLAY_DETECTED": [
+          "transaction_integrity",
+          "change_control"
+        ],
+        "VERIFICATION_PENDING": [
+          "independent_validation"
+        ],
+        "MISSING_OWNER_AT_COMMIT_BOUNDARY": [
+          "decision_ownership",
+          "commit_boundary_control"
+        ],
+        "OWNER_ACKNOWLEDGEMENT_REQUIRED": [
+          "operator_confirmation",
+          "commit_boundary_control"
+        ],
+        "SECOND_OWNER_REQUIRED_BUT_MISSING": [
+          "dual_control",
+          "segregation_of_duties"
+        ],
+        "UNAUTHORIZED_OWNER_ROLE": [
+          "role_based_authority_control"
+        ]
+      }
+    }
+  },
+  "idempotencyContract": {
+    "mutationPolicy": "Any action that could change money, system state, credentials, identity, routing, or approvals must carry an idempotency key and dedupe key.",
+    "requiredFieldsForMutatingEvents": [
+      "eventId",
+      "dedupeKey",
+      "payloadHash",
+      "occurredAt"
+    ],
+    "duplicateHandling": {
+      "states": [
+        "new",
+        "duplicate_same_payload",
+        "duplicate_conflict",
+        "replay_after_commit"
+      ],
+      "defaultBehavior": {
+        "new": "evaluate_normally",
+        "duplicate_same_payload": "return_prior_decision_without_reexecuting_side_effects",
+        "duplicate_conflict": "block_and_investigate",
+        "replay_after_commit": "block_and_investigate"
+      }
+    },
+    "replayProtection": {
+      "windowHours": 72,
+      "requiresMonotonicEventStore": true,
+      "highRiskMutationBehavior": "block_when_prior_committed_event_reappears_without_new_authorization"
+    }
+  },
+  "deploymentNotes": {
+    "whatChangedFromV1_3": [
+      "Added security and trust context fields to every case.",
+      "Defined inline vs async runtime expectations and latency budgets.",
+      "Added interoperability contract for adapters, audit output, and reason-code mapping.",
+      "Added idempotency and replay contract for mutating events.",
+      "Added cases covering credential exfiltration, verified internal APIs, replayed workflow events, and missing idempotency.",
+      "Normalized self-approval block rule from SELF_APPROVAL_WHEN_SECOND_REVIEW_REQUIRED to SELF_APPROVAL_BLOCKED_AND_SECOND_REVIEW_REQUIRED so strict token matching works without inferred mapping.",
+      "Added explicit ownership binding, owner acknowledgement, and dual-control enforcement primitives.",
+      "Added UI contract fields so the surface layer must show owner, acknowledgement, and commit eligibility before execution."
+    ],
+    "compatibility": {
+      "existingCoreFieldsPreserved": true,
+      "newFieldsAreAdditive": true
+    }
+  },
+  "ownershipEnforcementContract": {
+    "designIntent": "Ownership is not descriptive metadata. Any mutating or high-consequence action must bind to a named, verified, and authorized owner before crossing the commit boundary.",
+    "commitBoundaryPrinciples": [
+      "No execution without explicit owner when ownership is required.",
+      "Owner verification and owner authority are separate checks and both must pass.",
+      "Owner acknowledgement is required for high-consequence, irreversible, or override paths.",
+      "Dual-control actions require a distinct second owner when policy says the risk cannot be carried by one actor alone.",
+      "Any override creates a new ownership event and fresh audit record rather than bypassing ownership."
+    ],
+    "requiredOwnershipFields": [
+      "required",
+      "actorType",
+      "actorId",
+      "explicit",
+      "verified",
+      "authorized",
+      "acknowledged",
+      "commitRole",
+      "ownershipMode",
+      "bindingState",
+      "secondReviewRequired",
+      "secondActorId",
+      "secondActorVerified"
+    ],
+    "enforcementOutcomes": {
+      "allow": [
+        "ownership not required, or named owner bound and verified",
+        "owner acknowledgement present when required",
+        "second owner satisfied when dual control is required"
+      ],
+      "slow": [
+        "owner named but acknowledgement pending",
+        "primary owner bound but second owner still pending",
+        "commit boundary reached but independent validation still open"
+      ],
+      "block": [
+        "missing owner at commit boundary",
+        "owner not authorized for action class",
+        "override attempted without rebinding ownership",
+        "dual-control required but second owner missing"
+      ]
+    },
+    "authorityClassPolicies": {
+      "human_operator": "Default for enterprise workflow approvals, payment changes, and internal business actions.",
+      "service_account": "Allowed only for pre-authorized, traceable, low-risk or policy-approved automated actions.",
+      "clinical_licensed": "Required when recommendations cross into direct patient care, medication, or triage execution.",
+      "flight_authority": "Required when recommendations cross into dispatch release, route deviation commitment, or safety-significant flight execution."
+    }
+  },
+  "uiDecisionContract": {
+    "mustDisplayBeforeExecutableDecision": [
+      "decision",
+      "reasonCodes",
+      "consequenceProfile.severity",
+      "ownership.actorId",
+      "ownership.commitRole",
+      "ownership.acknowledged",
+      "ownership.bindingState",
+      "ownership.secondReviewRequired",
+      "ownership.secondActorId",
+      "ownershipCommit.executionEligible"
+    ],
+    "visualEmphasis": {
+      "allow": "show bound owner and acknowledgement state before enabling execution",
+      "slow": "show exactly which ownership requirement remains open",
+      "block": "surface missing owner or authority failure as primary reason"
+    }
+  }
+}

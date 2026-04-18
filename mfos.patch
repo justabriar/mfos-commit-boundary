@@ -1,0 +1,787 @@
+diff --git a/console/.npmrc b/console/.npmrc
+new file mode 100644
+index 0000000000000000000000000000000000000000..214c29d1395919ce175f26d140526368127981ba
+--- /dev/null
++++ b/console/.npmrc
+@@ -0,0 +1 @@
++registry=https://registry.npmjs.org/
+diff --git a/console/README.md b/console/README.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..72e63500bf3507a01f2eabec783ecb6a60eb9f84
+--- /dev/null
++++ b/console/README.md
+@@ -0,0 +1,21 @@
++# MFOS Commit Boundary Console
++
++Single-page React + TypeScript UI for running MFOS middleware decisions against cases in `fixtures/mfos_ground_truth_v1_4_1.json`.
++
++## Run
++
++```bash
++cd console
++npm install
++npm run dev
++```
++
++Open the URL shown by Vite (usually `http://localhost:5173`).
++
++## Build
++
++```bash
++cd console
++npm run build
++npm run preview
++```
+diff --git a/console/index.html b/console/index.html
+new file mode 100644
+index 0000000000000000000000000000000000000000..9b1dabf2b0d9a7be64fe1cd880d6442b29040490
+--- /dev/null
++++ b/console/index.html
+@@ -0,0 +1,12 @@
++<!doctype html>
++<html lang="en">
++  <head>
++    <meta charset="UTF-8" />
++    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
++    <title>MFOS Commit Boundary Console</title>
++  </head>
++  <body>
++    <div id="root"></div>
++    <script type="module" src="/src/main.tsx"></script>
++  </body>
++</html>
+diff --git a/console/package.json b/console/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..1ea5ab737d01203e95d79ce5b534c49371436817
+--- /dev/null
++++ b/console/package.json
+@@ -0,0 +1,22 @@
++{
++  "name": "mfos-commit-boundary-console",
++  "private": true,
++  "version": "0.0.1",
++  "type": "module",
++  "scripts": {
++    "dev": "vite",
++    "build": "vite build",
++    "preview": "vite preview"
++  },
++  "dependencies": {
++    "react": "^18.3.1",
++    "react-dom": "^18.3.1"
++  },
++  "devDependencies": {
++    "@types/react": "^18.3.12",
++    "@types/react-dom": "^18.3.1",
++    "@vitejs/plugin-react": "^4.3.4",
++    "typescript": "^5.7.2",
++    "vite": "^5.4.11"
++  }
++}
+diff --git a/console/src/App.tsx b/console/src/App.tsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..4db9c5efec0c1f6fc4324b7bc7bc45e25af55ba9
+--- /dev/null
++++ b/console/src/App.tsx
+@@ -0,0 +1,197 @@
++import { useMemo, useState } from 'react';
++import fixtureData from '@fixtures';
++import { decideMfosMiddleware, type MfosDecision, type MfosDecisionInput } from '@middleware';
++
++type GroundTruthCase = {
++  caseId: string;
++  title?: string;
++  description?: string;
++  input: Record<string, unknown>;
++  ownership: {
++    required: boolean;
++    verified: boolean;
++  };
++  trustContext: Record<string, unknown>;
++  thresholdEvaluation: {
++    mechanicalTriggers: string[];
++  };
++  classification: {
++    actionIntent: {
++      targetAction: string;
++    };
++  };
++  mfosGate: {
++    decision: MfosDecision;
++    reasonCodes: string[];
++    explanation: string;
++    requiredNextSteps: string[];
++  };
++  groundTruth?: {
++    expectedDecision?: MfosDecision;
++  };
++};
++
++type GroundTruthFixture = {
++  suiteVersion: string;
++  cases: GroundTruthCase[];
++};
++
++type DecisionRun = {
++  actualDecision: MfosDecision;
++  expectedDecision: MfosDecision;
++  status: 'PASS' | 'FAIL';
++  matchedReasonCodes: string[];
++  explanation: string;
++  requiredNextSteps: string[];
++};
++
++const fixture = fixtureData as GroundTruthFixture;
++
++const DIRECT_RULES = new Set([
++  'ACTION_IMPLIED',
++  'PRESSURE_MODERATE',
++  'CONSEQUENCE_MEDIUM',
++  'OWNERSHIP_UNCLEAR',
++  'IDENTITY_UNVERIFIED',
++  'AMBIGUITY_HIGH',
++  'VERIFICATION_PENDING',
++  'AUTHENTICATION_PARTIAL',
++  'TRUST_CONTEXT_LOW',
++  'SIGNATURE_MISSING',
++  'TRACE_MISSING',
++  'AUTHENTICATION_FAILED',
++  'AUTHORIZATION_FAILED',
++  'SIGNATURE_INVALID',
++  'REPLAY_DETECTED',
++  'IDEMPOTENCY_KEY_MISSING',
++  'TRANSPORT_UNTRUSTED'
++]);
++
++function toMiddlewareInput(selectedCase: GroundTruthCase): MfosDecisionInput {
++  const maybeInput = selectedCase.input as Partial<MfosDecisionInput>;
++  const inputFromCase = {
++    ...maybeInput
++  };
++
++  return {
++    ...inputFromCase,
++    reasonCodes: Array.isArray(maybeInput.reasonCodes)
++      ? maybeInput.reasonCodes
++      : selectedCase.mfosGate.reasonCodes,
++    ownership: maybeInput.ownership
++      ? maybeInput.ownership
++      : selectedCase.ownership
++  };
++}
++
++function runCase(selectedCase: GroundTruthCase): DecisionRun {
++  const middlewareInput = toMiddlewareInput(selectedCase);
++  const actualDecision = decideMfosMiddleware(middlewareInput);
++  const expectedDecision = selectedCase.groundTruth?.expectedDecision ?? selectedCase.mfosGate.decision;
++
++  const matchedReasonCodes = middlewareInput.reasonCodes.filter((code) => DIRECT_RULES.has(code));
++
++  return {
++    actualDecision,
++    expectedDecision,
++    status: actualDecision === expectedDecision ? 'PASS' : 'FAIL',
++    matchedReasonCodes,
++    explanation: selectedCase.mfosGate.explanation,
++    requiredNextSteps: selectedCase.mfosGate.requiredNextSteps
++  };
++}
++
++export function App() {
++  const [selectedCaseId, setSelectedCaseId] = useState(fixture.cases[0]?.caseId ?? '');
++  const [decisionRun, setDecisionRun] = useState<DecisionRun | null>(null);
++
++  const selectedCase = useMemo(
++    () => fixture.cases.find((item) => item.caseId === selectedCaseId) ?? fixture.cases[0],
++    [selectedCaseId]
++  );
++
++  if (!selectedCase) {
++    return <main><h1>MFOS Commit Boundary Console</h1><p>No cases available.</p></main>;
++  }
++
++  const onRunDecision = () => {
++    setDecisionRun(runCase(selectedCase));
++  };
++
++  const onExportJson = () => {
++    if (!decisionRun) return;
++
++    const payload = {
++      caseId: selectedCase.caseId,
++      suiteVersion: fixture.suiteVersion,
++      input: selectedCase.input,
++      output: decisionRun
++    };
++
++    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
++    const url = URL.createObjectURL(blob);
++    const anchor = document.createElement('a');
++    anchor.href = url;
++    anchor.download = `${selectedCase.caseId}-decision.json`;
++    anchor.click();
++    URL.revokeObjectURL(url);
++  };
++
++  return (
++    <main>
++      <h1>MFOS Commit Boundary Console</h1>
++
++      <label>
++        Select Case
++        <select value={selectedCase.caseId} onChange={(event) => setSelectedCaseId(event.target.value)}>
++          {fixture.cases.map((item) => (
++            <option key={item.caseId} value={item.caseId}>{item.caseId}</option>
++          ))}
++        </select>
++      </label>
++
++      <div className="layout">
++        <section>
++          <h2>Left Panel</h2>
++          <p><strong>caseId:</strong> {selectedCase.caseId}</p>
++          <p><strong>description:</strong> {selectedCase.description ?? selectedCase.title ?? 'n/a'}</p>
++          <p><strong>action intent:</strong> {selectedCase.classification.actionIntent.targetAction}</p>
++          <p><strong>trustContext:</strong> <code>{JSON.stringify(selectedCase.trustContext)}</code></p>
++          <p><strong>ownership:</strong> <code>{JSON.stringify(selectedCase.ownership)}</code></p>
++          <p><strong>mechanicalTriggers:</strong> <code>{JSON.stringify(selectedCase.thresholdEvaluation.mechanicalTriggers)}</code></p>
++          <p><strong>mfosGate.decision:</strong> {selectedCase.mfosGate.decision}</p>
++          <p><strong>mfosGate.reasonCodes:</strong> <code>{JSON.stringify(selectedCase.mfosGate.reasonCodes)}</code></p>
++          <p><strong>mfosGate.explanation:</strong> {selectedCase.mfosGate.explanation}</p>
++          <p><strong>mfosGate.requiredNextSteps:</strong> <code>{JSON.stringify(selectedCase.mfosGate.requiredNextSteps)}</code></p>
++        </section>
++
++        <section className="decision-panel">
++          <h2>Right Panel</h2>
++          <div className={`status-banner ${decisionRun?.status === 'FAIL' ? 'fail' : 'pass'}`}>
++            {decisionRun
++              ? `${decisionRun.status === 'PASS' ? '✅ PASS' : '❌ FAIL'} — expected: ${decisionRun.expectedDecision}, actual: ${decisionRun.actualDecision}`
++              : 'Run Decision to compare expected vs actual'}
++          </div>
++          <p><strong>actual decision:</strong> {decisionRun?.actualDecision ?? '-'}</p>
++          <p><strong>expected decision:</strong> {decisionRun?.expectedDecision ?? (selectedCase.groundTruth?.expectedDecision ?? '-')}</p>
++          <p><strong>status:</strong> <span className={decisionRun?.status === 'FAIL' ? 'fail' : 'pass'}>{decisionRun?.status ?? '-'}</span></p>
++          <p><strong>matched reason codes:</strong> <code>{JSON.stringify(decisionRun?.matchedReasonCodes ?? [])}</code></p>
++          <p><strong>short explanation:</strong> {decisionRun?.explanation ?? '-'}</p>
++          <p><strong>required next steps:</strong> <code>{JSON.stringify(decisionRun?.requiredNextSteps ?? [])}</code></p>
++        </section>
++      </div>
++
++      <section>
++        <h2>Compare</h2>
++        <p><strong>Without MFOS:</strong> allow</p>
++        <p><strong>With MFOS:</strong> {decisionRun?.actualDecision ?? '-'}</p>
++        <p><strong>Difference:</strong> {decisionRun ? (decisionRun.actualDecision === 'allow' ? 'No difference' : `MFOS changes result to ${decisionRun.actualDecision.toUpperCase()}`) : '-'}</p>
++      </section>
++
++      <div className="actions">
++        <button type="button" onClick={onRunDecision}>Run Decision</button>
++        <button type="button" onClick={onExportJson} disabled={!decisionRun}>Export JSON</button>
++      </div>
++    </main>
++  );
++}
+diff --git a/console/src/main.tsx b/console/src/main.tsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..b266a1d96a701e46700a2444cfc1c8e4deeda5d9
+--- /dev/null
++++ b/console/src/main.tsx
+@@ -0,0 +1,10 @@
++import React from 'react';
++import ReactDOM from 'react-dom/client';
++import { App } from './App';
++import './styles.css';
++
++ReactDOM.createRoot(document.getElementById('root')!).render(
++  <React.StrictMode>
++    <App />
++  </React.StrictMode>
++);
+diff --git a/console/src/styles.css b/console/src/styles.css
+new file mode 100644
+index 0000000000000000000000000000000000000000..f77cb5c593699cb37ff4919b1c2e85311b2f7c89
+--- /dev/null
++++ b/console/src/styles.css
+@@ -0,0 +1,64 @@
++body {
++  font-family: Arial, sans-serif;
++  margin: 16px;
++}
++
++main {
++  display: flex;
++  flex-direction: column;
++  gap: 12px;
++}
++
++.layout {
++  display: grid;
++  grid-template-columns: 1fr 1fr;
++  gap: 12px;
++}
++
++section {
++  border: 1px solid #ccc;
++  padding: 10px;
++}
++
++.decision-panel {
++  position: relative;
++}
++
++code {
++  display: inline-block;
++  max-width: 100%;
++  overflow-wrap: anywhere;
++}
++
++.actions {
++  display: flex;
++  gap: 8px;
++}
++
++.status-banner {
++  position: sticky;
++  top: 0;
++  z-index: 2;
++  border: 2px solid #444;
++  padding: 8px;
++  margin-bottom: 8px;
++  font-weight: bold;
++}
++
++.pass {
++  color: green;
++  font-weight: bold;
++}
++
++.fail {
++  color: red;
++  font-weight: bold;
++}
++
++.status-banner.pass {
++  background: #c7f7c7;
++}
++
++.status-banner.fail {
++  background: #ffc9c9;
++}
+diff --git a/console/tsconfig.json b/console/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..abf4a346a12c9a96b4d30093de497f0e16d8eaca
+--- /dev/null
++++ b/console/tsconfig.json
+@@ -0,0 +1,19 @@
++{
++  "compilerOptions": {
++    "target": "ES2022",
++    "module": "ESNext",
++    "lib": ["ES2022", "DOM", "DOM.Iterable"],
++    "jsx": "react-jsx",
++    "moduleResolution": "Bundler",
++    "strict": true,
++    "resolveJsonModule": true,
++    "esModuleInterop": true,
++    "noEmit": true,
++    "baseUrl": ".",
++    "paths": {
++      "@middleware": ["../src/middleware/mfosDecision.ts"],
++      "@fixtures": ["../fixtures/mfos_ground_truth_v1_4_1.json"]
++    }
++  },
++  "include": ["src"]
++}
+diff --git a/console/vite.config.ts b/console/vite.config.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..4f9912972b4b0fc42f8ff7f51be67945982b3e68
+--- /dev/null
++++ b/console/vite.config.ts
+@@ -0,0 +1,18 @@
++import { defineConfig } from 'vite';
++import react from '@vitejs/plugin-react';
++import path from 'node:path';
++
++export default defineConfig({
++  plugins: [react()],
++  resolve: {
++    alias: {
++      '@middleware': path.resolve(__dirname, '../src/middleware/mfosDecision.ts'),
++      '@fixtures': path.resolve(__dirname, '../fixtures/mfos_ground_truth_v1_4_1.json')
++    }
++  },
++  server: {
++    fs: {
++      allow: ['..']
++    }
++  }
++});
+diff --git a/fixtures/mfos_ground_truth.json b/fixtures/mfos_ground_truth_v1_4_1.json
+similarity index 100%
+rename from fixtures/mfos_ground_truth.json
+rename to fixtures/mfos_ground_truth_v1_4_1.json
+diff --git a/src/middleware/mfosDecision.ts b/src/middleware/mfosDecision.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..05a96db13b47b26536e28418a4c482fe0ad8baaa
+--- /dev/null
++++ b/src/middleware/mfosDecision.ts
+@@ -0,0 +1,147 @@
++export type MfosDecision = 'allow' | 'slow' | 'block';
++
++export type MfosDecisionInput = {
++  reasonCodes: string[];
++  ownership: {
++    required: boolean;
++    verified: boolean;
++  };
++  policy?: {
++    compositeRules?: CompositeRule[];
++  };
++};
++
++export type CompositeRule = {
++  type: 'AND';
++  requires: string[];
++  decision: MfosDecision;
++};
++
++const SLOW_REASON_CODES = new Set([
++  'ACTION_IMPLIED',
++  'PRESSURE_MODERATE',
++  'CONSEQUENCE_MEDIUM',
++  'OWNERSHIP_UNCLEAR',
++  'IDENTITY_UNVERIFIED',
++  'AMBIGUITY_HIGH',
++  'VERIFICATION_PENDING',
++  'AUTHENTICATION_PARTIAL',
++  'TRUST_CONTEXT_LOW',
++  'SIGNATURE_MISSING',
++  'TRACE_MISSING'
++]);
++
++const DIRECT_BLOCK_REASON_CODES = new Set([
++  'AUTHENTICATION_FAILED',
++  'AUTHORIZATION_FAILED',
++  'SIGNATURE_INVALID',
++  'REPLAY_DETECTED',
++  'IDEMPOTENCY_KEY_MISSING',
++  'TRANSPORT_UNTRUSTED'
++]);
++
++function hasAll(reasonCodes: Set<string>, required: string[]): boolean {
++  return required.every((reasonCode) => reasonCodes.has(reasonCode));
++}
++
++function evaluateCompositeRules(
++  reasonCodes: Set<string>,
++  compositeRules: CompositeRule[] | undefined
++): MfosDecision | null {
++  if (!compositeRules || compositeRules.length === 0) {
++    return null;
++  }
++
++  let bestDecision: MfosDecision | null = null;
++  const decisionPriority: MfosDecision[] = ['allow', 'slow', 'block'];
++
++  for (const rule of compositeRules) {
++    if (rule.type !== 'AND') {
++      continue;
++    }
++
++    if (!hasAll(reasonCodes, rule.requires)) {
++      continue;
++    }
++
++    if (!bestDecision) {
++      bestDecision = rule.decision;
++      continue;
++    }
++
++    if (decisionPriority.indexOf(rule.decision) > decisionPriority.indexOf(bestDecision)) {
++      bestDecision = rule.decision;
++    }
++  }
++
++  return bestDecision;
++}
++
++export function decideMfosMiddleware(input: MfosDecisionInput): MfosDecision {
++  const reasonCodes = new Set(input.reasonCodes);
++
++  if (hasAll(reasonCodes, ['ACTION_EXPLICIT', 'PRESSURE_STRONG'])) {
++    return 'block';
++  }
++
++  if (
++    reasonCodes.has('CONSEQUENCE_HIGH')
++    && (
++reasonCodes.has('IDENTITY_UNVERIFIED')
++      || reasonCodes.has('AUTHENTICATION_PARTIAL')
++      || reasonCodes.has('AUTHENTICATION_FAILED')
++    )
++  ) {
++    return 'block';
++  }
++
++  if (reasonCodes.has('IRREVERSIBLE_ACTION') && (input.ownership.required && !input.ownership.verified)) {
++    return 'block';
++  }
++
++  if (hasAll(reasonCodes, ['SELF_APPROVAL_BLOCKED', 'SECOND_REVIEW_REQUIRED'])) {
++    return 'block';
++  }
++
++  if (
++    reasonCodes.has('SECRECY_PRESENT')
++    && (reasonCodes.has('CONSEQUENCE_HIGH') || reasonCodes.has('IRREVERSIBLE_ACTION'))
++  ) {
++    return 'block';
++  }
++
++  if (reasonCodes.has('TRUST_CONTEXT_LOW') && reasonCodes.has('AUTHENTICATION_FAILED')) {
++    return 'block';
++  }
++
++  for (const reasonCode of reasonCodes) {
++    if (DIRECT_BLOCK_REASON_CODES.has(reasonCode)) {
++      return 'block';
++    }
++  }
++
++  for (const reasonCode of reasonCodes) {
++    if (SLOW_REASON_CODES.has(reasonCode)) {
++      return 'slow';
++    }
++  }
++
++  const compositeDecision = evaluateCompositeRules(reasonCodes, input.policy?.compositeRules);
++  if (compositeDecision) {
++    return compositeDecision;
++  }
++
++  if (hasAll(reasonCodes, ['ACTION_NONE', 'CONSEQUENCE_LOW'])) {
++    return 'allow';
++  }
++
++  if (!reasonCodes.has('PRESSURE_STRONG') && !reasonCodes.has('PRESSURE_MODERATE')) {
++    return 'allow';
++  }
++
++  if (!input.ownership.required || input.ownership.verified) {
++    return 'allow';
++  }
++
++  return 'slow';
++}
+diff --git a/tests/consoleGroundTruthV141.test.ts b/tests/consoleGroundTruthV141.test.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..1217a0ad5b3a01b0102f2c3bad4f0063c6df2882
+--- /dev/null
++++ b/tests/consoleGroundTruthV141.test.ts
+@@ -0,0 +1,31 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import fixture from '../fixtures/mfos_ground_truth_v1_4_1.json' assert { type: 'json' };
++import { decideMfosMiddleware, type MfosDecisionInput } from '../src/middleware/mfosDecision.js';
++
++type GroundTruthCase = (typeof fixture.cases)[number];
++
++function toMiddlewareInput(selectedCase: GroundTruthCase): MfosDecisionInput {
++  const maybeInput = selectedCase.input as Partial<MfosDecisionInput>;
++
++  return {
++    ...maybeInput,
++    reasonCodes: Array.isArray(maybeInput.reasonCodes)
++      ? maybeInput.reasonCodes
++      : selectedCase.mfosGate.reasonCodes,
++    ownership: maybeInput.ownership
++      ? maybeInput.ownership
++      : selectedCase.ownership
++  };
++}
++
++test('at least first 3 cases match expected decision on run path', () => {
++  const firstThree = fixture.cases.slice(0, 3);
++  assert.equal(firstThree.length, 3);
++
++  for (const c of firstThree) {
++    const actual = decideMfosMiddleware(toMiddlewareInput(c));
++    const expected = c.groundTruth?.expectedDecision ?? c.mfosGate.decision;
++    assert.equal(actual, expected, `mismatch for ${c.caseId}`);
++  }
++});
+diff --git a/tests/mfosDecision.test.ts b/tests/mfosDecision.test.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..13e8a91a88304803a266b85bcf4f172b2dea2d0f
+--- /dev/null
++++ b/tests/mfosDecision.test.ts
+@@ -0,0 +1,148 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import { readFileSync } from 'node:fs';
++
++import { decideMfosMiddleware } from '../src/middleware/mfosDecision.js';
++
++type GroundTruthCase = {
++  caseId: string;
++  thresholdEvaluation: {
++    mechanicalTriggers: string[];
++  };
++  ownership: {
++    required: boolean;
++    verified: boolean;
++  };
++  mfosGate: {
++    decision: 'allow' | 'slow' | 'block';
++    reasonCodes: string[];
++  };
++};
++
++type GroundTruthFixture = {
++  gateRules: {
++    allow: string[];
++    slow: string[];
++    block: string[];
++  };
++  decisionPriority: Array<'block' | 'slow' | 'allow'>;
++  cases: GroundTruthCase[];
++};
++
++const fixture = JSON.parse(readFileSync('fixtures/mfos_ground_truth_v1_4_1.json', 'utf8')) as GroundTruthFixture;
++
++const TRIGGER_TO_DECISION = new Map<string, 'allow' | 'slow' | 'block'>([
++  ['ACTION_NONE', 'allow'],
++  ['CONSEQUENCE_LOW', 'allow'],
++  ['ACTION_IMPLIED', 'slow'],
++  ['PRESSURE_MODERATE', 'slow'],
++  ['CONSEQUENCE_MEDIUM', 'slow'],
++  ['OWNERSHIP_UNCLEAR', 'slow'],
++  ['IDENTITY_UNVERIFIED', 'slow'],
++  ['AMBIGUITY_HIGH', 'slow'],
++  ['VERIFICATION_PENDING', 'slow'],
++  ['AUTHENTICATION_PARTIAL', 'slow'],
++  ['TRUST_CONTEXT_LOW', 'slow'],
++  ['SIGNATURE_MISSING', 'slow'],
++  ['TRACE_MISSING', 'slow'],
++  ['AUTHENTICATION_FAILED', 'block'],
++  ['AUTHORIZATION_FAILED', 'block'],
++  ['SIGNATURE_INVALID', 'block'],
++  ['REPLAY_DETECTED', 'block'],
++  ['IDEMPOTENCY_KEY_MISSING', 'block'],
++  ['TRANSPORT_UNTRUSTED', 'block']
++]);
++
++test('report mismatches between gate policy rules and case mechanical triggers', () => {
++  const mismatches: Array<{ caseId: string; policyOnlyDecision: 'allow' | 'slow' | 'block'; expectedDecision: 'allow' | 'slow' | 'block' }> = [];
++
++  for (const c of fixture.cases) {
++    let policyOnlyDecision: 'allow' | 'slow' | 'allow' | 'block' = 'allow';
++
++    for (const trigger of c.thresholdEvaluation.mechanicalTriggers) {
++      const mapped = TRIGGER_TO_DECISION.get(trigger);
++      if (mapped === 'block') {
++        policyOnlyDecision = 'block';
++        break;
++      }
++      if (mapped === 'slow' && policyOnlyDecision !== 'block') {
++        policyOnlyDecision = 'slow';
++      }
++    }
++
++    if (policyOnlyDecision !== c.mfosGate.decision) {
++      mismatches.push({
++        caseId: c.caseId,
++        policyOnlyDecision,
++        expectedDecision: c.mfosGate.decision
++      });
++    }
++  }
++
++  assert.deepEqual(mismatches, [
++    {
++      caseId: 'financial_pressure_cashapp_001',
++      policyOnlyDecision: 'slow',
++      expectedDecision: 'block'
++    },
++    {
++      caseId: 'ownership_self_approval_001',
++      policyOnlyDecision: 'allow',
++      expectedDecision: 'block'
++    }
++  ]);
++});
++
++test('deterministic middleware decision matches every fixture case', () => {
++  for (const c of fixture.cases) {
++    const actual = decideMfosMiddleware({
++      reasonCodes: c.mfosGate.reasonCodes,
++      ownership: {
++        required: c.ownership.required,
++        verified: c.ownership.verified
++      }
++    });
++
++    assert.equal(actual, c.mfosGate.decision, `decision mismatch for case ${c.caseId}`);
++  }
++});
++
++test('composite AND rules are evaluated after direct triggers', () => {
++  const noDirectTriggerDecision = decideMfosMiddleware({
++    reasonCodes: ['ACTION_EXPLICIT', 'TEMPO_HARD'],
++    ownership: {
++      required: false,
++      verified: false
++    },
++    policy: {
++      compositeRules: [
++        {
++          type: 'AND',
++          requires: ['ACTION_EXPLICIT', 'TEMPO_HARD'],
++          decision: 'slow'
++        }
++      ]
++    }
++  });
++
++  assert.equal(noDirectTriggerDecision, 'slow');
++
++  const directTriggerPrecedenceDecision = decideMfosMiddleware({
++    reasonCodes: ['AUTHENTICATION_FAILED'],
++    ownership: {
++      required: false,
++      verified: false
++    },
++    policy: {
++      compositeRules: [
++        {
++          type: 'AND',
++          requires: ['AUTHENTICATION_FAILED'],
++          decision: 'allow'
++        }
++      ]
++    }
++  });
++
++  assert.equal(directTriggerPrecedenceDecision, 'block');
++});
+diff --git a/tests/uiSchemaCoverageV141.test.ts b/tests/uiSchemaCoverageV141.test.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..7cf6619c3eaac526e9a1be1986506ba3f612462e
+--- /dev/null
++++ b/tests/uiSchemaCoverageV141.test.ts
+@@ -0,0 +1,15 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import fixture from '../fixtures/mfos_ground_truth_v1_4_1.json' assert { type: 'json' };
++
++test('v1.4.1 fixture includes all fields required by console rendering', () => {
++  for (const c of fixture.cases) {
++    assert.ok(c.trustContext, `missing trustContext for ${c.caseId}`);
++    assert.ok(c.ownership, `missing ownership for ${c.caseId}`);
++    assert.ok(c.thresholdEvaluation?.mechanicalTriggers, `missing mechanicalTriggers for ${c.caseId}`);
++    assert.ok(c.mfosGate?.decision, `missing mfosGate.decision for ${c.caseId}`);
++    assert.ok(c.mfosGate?.reasonCodes, `missing mfosGate.reasonCodes for ${c.caseId}`);
++    assert.ok(c.mfosGate?.explanation, `missing mfosGate.explanation for ${c.caseId}`);
++    assert.ok(c.mfosGate?.requiredNextSteps, `missing mfosGate.requiredNextSteps for ${c.caseId}`);
++  }
++});

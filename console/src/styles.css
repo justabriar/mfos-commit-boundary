@@ -1,0 +1,64 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 16px;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+section {
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+.decision-panel {
+  position: relative;
+}
+
+code {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.status-banner {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border: 2px solid #444;
+  padding: 8px;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.pass {
+  color: green;
+  font-weight: bold;
+}
+
+.fail {
+  color: red;
+  font-weight: bold;
+}
+
+.status-banner.pass {
+  background: #c7f7c7;
+}
+
+.status-banner.fail {
+  background: #ffc9c9;
+}

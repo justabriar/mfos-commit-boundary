@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@middleware": ["../src/middleware/mfosDecision.ts"],
+      "@fixtures": ["../fixtures/mfos_ground_truth_v1_4_1.json"]
+    }
+  },
+  "include": ["src"]
+}
